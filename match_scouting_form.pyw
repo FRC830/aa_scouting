@@ -2,7 +2,8 @@ from Tkinter import *
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
-#truss_pass   comments
+#truss_pass, fouls, tech_fouls, truss_catch, range_catch, human_catch
+#comments
 class Application(Frame):
     """Application window for scouting sheet"""
     def __init__(self, master):
@@ -79,7 +80,7 @@ class Application(Frame):
         Label(self, text = "Consistent").grid(row=8, column=3, sticky=S)
         Label(self, text = "Over Truss").grid(row=9, column=0, sticky=W)
         Label(self, text = "Ranged Pass").grid(row=10, column=0, sticky=W)
-        Label(self, text = " ").grid(row=11, column=0, sticky=W)
+        Label(self, text = " ").grid(row=11, column=0)
         pass_options = ["N/A", "Inconsistent", "Consistent"]
         #ranged_pass
         self.ranged_pass = StringVar()
@@ -97,10 +98,40 @@ class Application(Frame):
             Radiobutton(self, variable = self.truss_pass, value = val
                         ).grid(row=9, column=col)
             col+=1
+        #fouls
+        Label(self, text="Fouls:").grid(row=12, column=0, sticky=E)
+        self.fouls=Entry(self)
+        self.fouls.grid(row=12, column=1, sticky=W)
+        #tech_fouls
+        Label(self, text="Technical Fouls:").grid(row=12, column=2, sticky=E)
+        self.tech_fouls=Entry(self)
+        self.tech_fouls.grid(row=12, column=3, sticky=W)
+        Label(self, text = " ").grid(row=13, column=0)
+        #catching: truss_catch, range_catch, human_catch
+        Label(self, text="Catching:").grid(row=14, column=0, sticky=E)
+        self.truss_catch = BooleanVar()
+        self.range_catch = BooleanVar()
+        self.human_catch = BooleanVar()
+        Checkbutton(self, text="Truss", variable=self.truss_catch).grid(
+            row=14, column=1, sticky=W)
+        Checkbutton(self, text="Ranged", variable=self.range_catch).grid(
+            row=15, column=1, sticky=W)
+        Checkbutton(self, text="From Human", variable=self.human_catch).grid(
+            row=16, column=1, sticky=W)
+        #match_result
+        Label(self, text="Match Result:").grid(row = 14, column=2, sticky=E)
+        result_options = ["Win", "Loss", "Tie"]
+        self.match_result = StringVar()
+        self.match_result.set(None)
+        row=14
+        for val in result_options:
+            Radiobutton(self, variable=self.match_result, value=val, text=val
+                        ).grid(row=row, column=3, sticky=W)
+            row+=1
         #comments
-        Label(self, text="Comments:").grid(row=15, column=0)
+        Label(self, text="Comments:").grid(row=20, column=0)
         self.comments=Entry(self)
-        self.comments.grid(row=15, column=1)
+        self.comments.grid(row=20, column=1)
         
 root = Tk()
 root.title("Aerial Assist Match Scouting Form")
