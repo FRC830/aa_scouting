@@ -1,7 +1,8 @@
-from tkinter import *
+from Tkinter import *
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
-#teleop_high_miss, teleop_low, teleop_low_speed  comments
+#teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
+#truss_pass   comments
 class Application(Frame):
     """Application window for scouting sheet"""
     def __init__(self, master):
@@ -79,7 +80,23 @@ class Application(Frame):
         Label(self, text = "Over Truss").grid(row=9, column=0, sticky=W)
         Label(self, text = "Ranged Pass").grid(row=10, column=0, sticky=W)
         Label(self, text = " ").grid(row=11, column=0, sticky=W)
-        
+        pass_options = ["N/A", "Inconsistent", "Consistent"]
+        #ranged_pass
+        self.ranged_pass = StringVar()
+        self.ranged_pass.set(None)
+        col = 1
+        for val in pass_options:
+            Radiobutton(self, variable = self.ranged_pass, value = val
+                        ).grid(row=10, column=col)
+            col+=1
+        #truss_pass
+        self.truss_pass = StringVar()
+        self.truss_pass.set(None)
+        col = 1
+        for val in pass_options:
+            Radiobutton(self, variable = self.truss_pass, value = val
+                        ).grid(row=9, column=col)
+            col+=1
         #comments
         Label(self, text="Comments:").grid(row=15, column=0)
         self.comments=Entry(self)
