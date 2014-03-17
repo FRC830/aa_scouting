@@ -70,10 +70,20 @@ class Application(Frame):
                         ).grid(row=6, column=col)
             col+=1
 
+        #pass consistency
+        Label(self, text = " ").grid(row=7, column=0, sticky=W)
+        Label(self, text = "Pass Consistency").grid(row=8, column=0, sticky=W)
+        Label(self, text = "N/A").grid(row=8, column=1, sticky=S)
+        Label(self, text = "Inconsistent").grid(row=8, column=2, sticky=S)
+        Label(self, text = "Consistent").grid(row=8, column=3, sticky=S)
+        Label(self, text = "Over Truss").grid(row=9, column=0, sticky=W)
+        Label(self, text = "Ranged Pass").grid(row=10, column=0, sticky=W)
+        Label(self, text = " ").grid(row=11, column=0, sticky=W)
+        
         #comments
-        Label(self, text="Comments:").grid(row=10, column=0)
+        Label(self, text="Comments:").grid(row=15, column=0)
         self.comments=Entry(self)
-        self.comments.grid(row=10, column=1)
+        self.comments.grid(row=15, column=1)
         
 root = Tk()
 root.title("Aerial Assist Match Scouting Form")
