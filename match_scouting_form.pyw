@@ -145,7 +145,7 @@ class Application(Frame):
         #comments
         Label(self, text="Comments:").grid(row=19, column=0)
         self.comments = Text(self, width = 40, height=5, wrap=WORD,
-                             background='#ececec')
+                             background='#ffff00')
         self.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
         #submit button
         Button(self, text="Submit Form", command = self.submit
@@ -157,10 +157,20 @@ class Application(Frame):
         match = self.match_num.get()
         team = self.team_num.get()
         auton_ball = self.auton_ball_num.get()
+        auton_high = self.auton_high.get()
+        auton_low = self.auton_low.get()
         data = [match+"\n",
-                team+"\n",
                 auton_ball+"\n",
+                auton_high+"\n",
+                auton_low+"\n",
                 coms]
+        #clear entries
+        self.comments.delete("0.0", END)
+        self.match_num.delete("0", END)
+        self.team_num.delete("0", END)
+        self.auton_ball_num.delete("0", END)
+        self.auton_high.set("N/A")
+        self.auton_low.set("N/A")
         #filename should be like 830_data.txt
         filename = team + "_data.txt"
         #this will create the file if it doesnt exist
