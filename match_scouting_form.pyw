@@ -144,7 +144,8 @@ class Application(Frame):
         Label(self, text=" ").grid(row=18, column=0)
         #comments
         Label(self, text="Comments:").grid(row=19, column=0)
-        self.comments = Text(self, width = 40, height=5, wrap=WORD)
+        self.comments = Text(self, width = 40, height=5, wrap=WORD,
+                             background='#ececec')
         self.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
         #submit button
         Button(self, text="Submit Form", command = self.submit
