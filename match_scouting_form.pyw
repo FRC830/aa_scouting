@@ -1,13 +1,7 @@
 try:
-<<<<<<< HEAD
     from Tkinter import *
 except ImportError:
     from tkinter import *
-=======
-    from tkinter import *
-except ImportError:
-    from Tkinter import *
->>>>>>> 4439039d3b4b5cb7867452a8c3476adea8104987
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
