@@ -1,8 +1,8 @@
-from Tkinter import *
+from tkinter import *
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
-#truss_pass, fouls, tech_fouls, truss_catch, range_catch, human_catch
+#truss_pass, fouls, tech_fouls, defense, truss_catch, range_catch, human_catch
 #comments
 class Application(Frame):
     """Application window for scouting sheet"""
@@ -107,27 +107,38 @@ class Application(Frame):
         self.tech_fouls=Entry(self)
         self.tech_fouls.grid(row=12, column=3, sticky=W)
         Label(self, text = " ").grid(row=13, column=0)
+        #defense
+        Label(self, text="Defense:").grid(row=14, column=0, sticky=E)
+        col=1
+        defense_options = ["N/A", "Bad", "Mediocre", "Good"]
+        self.defense = StringVar()
+        self.defense.set(None)
+        for val in defense_options:
+            Radiobutton(self, variable=self.defense, value=val, text=val
+                        ).grid(row=14, column=col)
+            col+=1
         #catching: truss_catch, range_catch, human_catch
-        Label(self, text="Catching:").grid(row=14, column=0, sticky=E)
+        Label(self, text="Catching:").grid(row=15, column=0, sticky=E)
         self.truss_catch = BooleanVar()
         self.range_catch = BooleanVar()
         self.human_catch = BooleanVar()
         Checkbutton(self, text="Truss", variable=self.truss_catch).grid(
-            row=14, column=1, sticky=W)
-        Checkbutton(self, text="Ranged", variable=self.range_catch).grid(
             row=15, column=1, sticky=W)
-        Checkbutton(self, text="From Human", variable=self.human_catch).grid(
+        Checkbutton(self, text="Ranged", variable=self.range_catch).grid(
             row=16, column=1, sticky=W)
+        Checkbutton(self, text="From Human", variable=self.human_catch).grid(
+            row=17, column=1, sticky=W)
         #match_result
-        Label(self, text="Match Result:").grid(row = 14, column=2, sticky=E)
+        Label(self, text="Match Result:").grid(row = 15, column=2, sticky=E)
         result_options = ["Win", "Loss", "Tie"]
         self.match_result = StringVar()
         self.match_result.set(None)
-        row=14
+        row=15
         for val in result_options:
             Radiobutton(self, variable=self.match_result, value=val, text=val
                         ).grid(row=row, column=3, sticky=W)
             row+=1
+        Label(self, text=" ").grid(row=18, column=0)
         #comments
         Label(self, text="Comments:").grid(row=20, column=0)
         self.comments=Entry(self)
