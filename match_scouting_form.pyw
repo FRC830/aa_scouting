@@ -1,3 +1,4 @@
+import os
 try:
     from Tkinter import *
 except ImportError:
@@ -172,18 +173,12 @@ class Application(Frame):
         self.auton_high.set("N/A")
         self.auton_low.set("N/A")
         #filename should be like 830_data.txt
-        filename = team + "_data.txt"
+        filename = os.path.join('data', team + "_data.txt")
         #this will create the file if it doesnt exist
         a=open(filename,"w")
-        a.close()
-        #I dont know if I will need this section
-        file=open(filename,"r")
-        content = file.read()
-        file.close()
         #write the latest data
-        file=open(filename,"w")
-        file.writelines(data)
-        file.close()
+        a.writelines(data)
+        a.close()
 
     
 root = Tk()
