@@ -1,7 +1,13 @@
 try:
+<<<<<<< HEAD
     from Tkinter import *
 except ImportError:
     from tkinter import *
+=======
+    from tkinter import *
+except ImportError:
+    from Tkinter import *
+>>>>>>> 4439039d3b4b5cb7867452a8c3476adea8104987
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
@@ -144,7 +150,8 @@ class Application(Frame):
         Label(self, text=" ").grid(row=18, column=0)
         #comments
         Label(self, text="Comments:").grid(row=19, column=0)
-        self.comments = Text(self, width = 40, height=5, wrap=WORD)
+        self.comments = Text(self, width = 40, height=5, wrap=WORD,
+                             background='#ececec')
         self.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
         #submit button
         Button(self, text="Submit Form", command = self.submit
