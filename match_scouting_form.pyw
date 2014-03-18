@@ -1,4 +1,7 @@
-from tkinter import *
+try:
+    from tkinter import *
+except ImportError:
+    from Tkinter import *
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
