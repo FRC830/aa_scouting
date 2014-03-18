@@ -1,4 +1,4 @@
-from Tkinter import *
+from tkinter import *
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
@@ -150,7 +150,10 @@ class Application(Frame):
     def submit(self):
         """Read values from scouting form and save to a file"""
         coms = self.comments.get("0.0", END)
-        print(coms)
+        match = self.match_num.get()
+        team = self.team_num.get()
+        data = "match #"+match+"\n"+"team #"+team+"\n"+coms
+        print(data)
 
     
 root = Tk()
