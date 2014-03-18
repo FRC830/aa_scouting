@@ -155,8 +155,24 @@ class Application(Frame):
         coms = self.comments.get("0.0", END)
         match = self.match_num.get()
         team = self.team_num.get()
-        data = "match #"+match+"\n"+"team #"+team+"\n"+coms
-        print(data)
+        auton_ball = self.auton_ball_num.get()
+        data = [match+"\n",
+                team+"\n",
+                auton_ball+"\n",
+                coms]
+        #filename should be like 830_data.txt
+        filename = team + "_data.txt"
+        #this will create the file if it doesnt exist
+        a=open(filename,"w")
+        a.close()
+        #I dont know if I will need this section
+        file=open(filename,"r")
+        content = file.read()
+        file.close()
+        #write the latest data
+        file=open(filename,"w")
+        file.writelines(data)
+        file.close()
 
     
 root = Tk()
