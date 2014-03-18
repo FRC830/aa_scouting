@@ -140,10 +140,19 @@ class Application(Frame):
             row+=1
         Label(self, text=" ").grid(row=18, column=0)
         #comments
-        Label(self, text="Comments:").grid(row=20, column=0)
-        self.comments=Entry(self)
-        self.comments.grid(row=20, column=1)
-        
+        Label(self, text="Comments:").grid(row=19, column=0)
+        self.comments = Text(self, width = 40, height=5, wrap=WORD)
+        self.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
+        #submit button
+        Button(self, text="Submit Form", command = self.submit
+               ).grid(row=20, column=4, sticky=E)
+
+    def submit(self):
+        """Read values from scouting form and save to a file"""
+        coms = self.comments.get("0.0", END)
+        print(coms)
+
+    
 root = Tk()
 root.title("Aerial Assist Match Scouting Form")
 app = Application(root)
