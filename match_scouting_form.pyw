@@ -5,6 +5,26 @@ try:
 except ImportError:
     from tkinter import *
     import tkinter.messagebox as messagebox
+
+class Form(object):
+    """ Form data handler """
+    _reserved = ('data', '_reserved')
+    def __init__(self):
+        super(Form, self).__setattr__('data', {})
+
+    def __setattr__(self, key, value):
+        if key in self._reserved:
+            raise AttributeError("Can't set %r attribute" % key)
+        self.data[key] = value
+
+    def __getattr__(self, key):
+        if key in self._reserved:
+            return super(Form, self).__getattr__(key)
+        return self.data[key]
+
+    def get_data(self):
+        return self.data
+
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
@@ -220,8 +240,9 @@ class Application(Frame):
         self.range_catch.set(False)
         self.human_catch.set(False)
         self.match_result.set(None)
-    
-root = Tk()
-root.title("Aerial Assist Match Scouting Form")
-app = Application(root)
-root.mainloop()
+
+if __name__ == '__main__':
+    root = Tk()
+    root.title("Aerial Assist Match Scouting Form")
+    app = Application(root)
+    root.mainloop()
