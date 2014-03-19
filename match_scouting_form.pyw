@@ -17,6 +17,7 @@ class Application(Frame):
         Frame.__init__(self, master)
         self.grid()
         self.create_fields()
+        self.clear_entries()
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
