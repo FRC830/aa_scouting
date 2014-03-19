@@ -27,7 +27,7 @@ class Form(object):
         d = {}
         for key in self.data:
             field = self.data[key]
-            if isinstance(key, Text):
+            if isinstance(field, Text):
                 d[key] = field.get('0.0', END)
             else:
                 d[key] = field.get()
@@ -61,12 +61,12 @@ class Application(Frame):
         self.form.match_num.grid(row=1,column=1,sticky=W)
         #team_num input field
         Label(self, text="Team #:").grid(row=1, column=2)
-        self.team_num = Entry(self)
-        self.team_num.grid(row=1,column=3,sticky=W, columnspan=3)
+        self.form.team_num = Entry(self)
+        self.form.team_num.grid(row=1,column=3,sticky=W, columnspan=3)
         #auton_ball_num input field
         Label(self, text="Auton balls posessed:").grid(row=2, column=0, sticky=W)
-        self.auton_ball_num = Entry(self)
-        self.auton_ball_num.grid(row=2,column=1,sticky=W)
+        self.form.auton_ball_num = Entry(self)
+        self.form.auton_ball_num.grid(row=2,column=1,sticky=W)
         #auton_high
         Label(self, text="Auton High Goal").grid(row=2, column=2)
         scoring_options=["N/A","Missed","Scored"]
@@ -89,25 +89,25 @@ class Application(Frame):
             col+=1
         #teleop_high
         Label(self, text="Teleop High Goals:").grid(row=4, column=0, sticky=W)
-        self.teleop_high = Entry(self)
-        self.teleop_high.grid(row=4,column=1,sticky=W)
+        self.form.teleop_high = Entry(self)
+        self.form.teleop_high.grid(row=4,column=1,sticky=W)
         #teleop_high_miss
         Label(self, text="High Goals Missed:").grid(row=4, column=2, sticky=W)
-        self.teleop_high_miss = Entry(self)
-        self.teleop_high_miss.grid(row=4,column=3,sticky=W, columnspan=3)
+        self.form.teleop_high_miss = Entry(self)
+        self.form.teleop_high_miss.grid(row=4,column=3,sticky=W, columnspan=3)
         #teleop_low
         Label(self, text="Teleop Low Goals:").grid(row=5, column=0, sticky=W)
-        self.teleop_low = Entry(self)
-        self.teleop_low.grid(row=5,column=1,sticky=W)
+        self.form.teleop_low = Entry(self)
+        self.form.teleop_low.grid(row=5,column=1,sticky=W)
         #teleop_low_speed
         Label(self, text="Teleop Low Goal Speed:").grid(row=6 , column=0,
                                                        columnspan=2, sticky=W)
         speed_options=["N/A", "Slow", "Medium", "Fast"]
-        self.teleop_low_speed = StringVar()
-        self.teleop_low_speed.set(None)
+        self.form.teleop_low_speed = StringVar()
+        self.form.teleop_low_speed.set(None)
         col = 1
         for val in speed_options:
-            Radiobutton(self, text=val, variable=self.teleop_low_speed, value=val
+            Radiobutton(self, text=val, variable=self.form.teleop_low_speed, value=val
                         ).grid(row=6, column=col)
             col+=1
 
@@ -122,67 +122,67 @@ class Application(Frame):
         Label(self, text = " ").grid(row=11, column=0)
         pass_options = ["N/A", "Inconsistent", "Consistent"]
         #ranged_pass
-        self.ranged_pass = StringVar()
-        self.ranged_pass.set(None)
+        self.form.ranged_pass = StringVar()
+        self.form.ranged_pass.set(None)
         col = 1
         for val in pass_options:
-            Radiobutton(self, variable = self.ranged_pass, value = val
+            Radiobutton(self, variable = self.form.ranged_pass, value = val
                         ).grid(row=10, column=col)
             col+=1
         #truss_pass
-        self.truss_pass = StringVar()
-        self.truss_pass.set(None)
+        self.form.truss_pass = StringVar()
+        self.form.truss_pass.set(None)
         col = 1
         for val in pass_options:
-            Radiobutton(self, variable = self.truss_pass, value = val
+            Radiobutton(self, variable = self.form.truss_pass, value = val
                         ).grid(row=9, column=col)
             col+=1
         #fouls
         Label(self, text="Fouls:").grid(row=12, column=0, sticky=E)
-        self.fouls=Entry(self)
-        self.fouls.grid(row=12, column=1, sticky=W)
+        self.form.fouls=Entry(self)
+        self.form.fouls.grid(row=12, column=1, sticky=W)
         #tech_fouls
         Label(self, text="Technical Fouls:").grid(row=12, column=2, sticky=E)
-        self.tech_fouls=Entry(self)
-        self.tech_fouls.grid(row=12, column=3, sticky=W)
+        self.form.tech_fouls=Entry(self)
+        self.form.tech_fouls.grid(row=12, column=3, sticky=W)
         Label(self, text = " ").grid(row=13, column=0)
         #defense
         Label(self, text="Defense:").grid(row=14, column=0, sticky=E)
         col=1
         defense_options = ["N/A", "Bad", "Mediocre", "Good"]
-        self.defense = StringVar()
-        self.defense.set(None)
+        self.form.defense = StringVar()
+        self.form.defense.set(None)
         for val in defense_options:
-            Radiobutton(self, variable=self.defense, value=val, text=val
+            Radiobutton(self, variable=self.form.defense, value=val, text=val
                         ).grid(row=14, column=col)
             col+=1
         #catching: truss_catch, range_catch, human_catch
         Label(self, text="Catching:").grid(row=15, column=0, sticky=E)
-        self.truss_catch = BooleanVar()
-        self.range_catch = BooleanVar()
-        self.human_catch = BooleanVar()
-        Checkbutton(self, text="Truss", variable=self.truss_catch).grid(
+        self.form.truss_catch = BooleanVar()
+        self.form.range_catch = BooleanVar()
+        self.form.human_catch = BooleanVar()
+        Checkbutton(self, text="Truss", variable=self.form.truss_catch).grid(
             row=15, column=1, sticky=W)
-        Checkbutton(self, text="Ranged", variable=self.range_catch).grid(
+        Checkbutton(self, text="Ranged", variable=self.form.range_catch).grid(
             row=16, column=1, sticky=W)
-        Checkbutton(self, text="From Human", variable=self.human_catch).grid(
+        Checkbutton(self, text="From Human", variable=self.form.human_catch).grid(
             row=17, column=1, sticky=W)
         #match_result
         Label(self, text="Match Result:").grid(row = 15, column=2, sticky=E)
         result_options = ["Win", "Loss", "Tie"]
-        self.match_result = StringVar()
-        self.match_result.set(None)
+        self.form.match_result = StringVar()
+        self.form.match_result.set(None)
         row=15
         for val in result_options:
-            Radiobutton(self, variable=self.match_result, value=val, text=val
+            Radiobutton(self, variable=self.form.match_result, value=val, text=val
                         ).grid(row=row, column=3, sticky=W)
             row+=1
         Label(self, text=" ").grid(row=18, column=0)
         #comments
         Label(self, text="Comments:").grid(row=19, column=0)
-        self.comments = Text(self, width = 40, height=5, wrap=WORD,
-                             background='#ccccff')
-        self.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
+        self.form.comments = Text(self, width = 40, height=5, wrap=WORD,
+                             background='#ffff00')
+        self.form.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
         #submit button
         Button(self, text="Submit Form", command = self.check_submit
                ).grid(row=20, column=4, sticky=E)
@@ -200,68 +200,35 @@ class Application(Frame):
             self.submit()
     def submit(self):
         """Read values from scouting form and save to a file"""
-        print(self.form.get_data())
-        #store data in vars so G.U.I. can be cleared (not gooey, Steven)
-        #coms = self.comments.get("0.0", END)
-        #match = self.form.match_num.get()
-        #team = self.team_num.get()
-        #auton_ball = self.auton_ball_num.get()
-        #auton_high = self.form.auton_high.get()
-        #auton_low = self.form.auton_low.get()
-        #tel_high = self.teleop_high.get()
-        #tel_high_miss = self.teleop_high_miss.get()
-        #tel_low = self.teleop_low.get()
-        #tel_low_speed = self.teleop_low_speed.get()
-        #p_ranged = self.ranged_pass.get()
-        #p_truss = self.truss_pass.get()
-        #fouls = self.fouls.get()
-        #tech_fouls = self.tech_fouls.get()
-        #defense = self.defense.get()
-        #c_truss = self.truss_catch.get()
-        #c_ranged = self.range_catch.get()
-        #c_human = self.human_catch.get()
-        #result = self.match_result.get()
-        #choose data to write to file
-        #data = [match+"\n",
-        #    auton_ball+"\n",
-        #    auton_high+"\n",
-        #    auton_low+"\n",
-        #    coms]
         data = self.form.get_data()
-        #if os.path.exists(filename):
-        #    # Don't overwrite without confirmation
-        #    if not messagebox.askyesno('Overwrite',
-        #            'The file for team "%s" already exists. Overwrite?' % team):
-        #        return
         contents = self.load_data_file()
-        # write the latest data
+        # add data to end of list
         contents.append(data)
         self.save_data_file(contents)
         #clear entries
         self.clear_entries()
 
-
     def clear_entries(self):
         """erase entries and give user a clean slate - Good as new!"""
-        self.comments.delete("0.0", END)
+        self.form.comments.delete("0.0", END)
         self.form.match_num.delete("0", END)
-        self.team_num.delete("0", END)
-        self.auton_ball_num.delete("0", END)
+        self.form.team_num.delete("0", END)
+        self.form.auton_ball_num.delete("0", END)
         self.form.auton_high.set(None)
         self.form.auton_low.set(None)
-        self.teleop_high.delete("0", END)
-        self.teleop_high_miss.delete("0", END)
-        self.teleop_low.delete("0", END)
-        self.teleop_low_speed.set(None)
-        self.truss_pass.set(None)
-        self.ranged_pass.set(None)
-        self.fouls.delete("0", END)
-        self.tech_fouls.delete("0", END)
-        self.defense.set(None)
-        self.truss_catch.set(False)
-        self.range_catch.set(False)
-        self.human_catch.set(False)
-        self.match_result.set(None)
+        self.form.teleop_high.delete("0", END)
+        self.form.teleop_high_miss.delete("0", END)
+        self.form.teleop_low.delete("0", END)
+        self.form.teleop_low_speed.set(None)
+        self.form.truss_pass.set(None)
+        self.form.ranged_pass.set(None)
+        self.form.fouls.delete("0", END)
+        self.form.tech_fouls.delete("0", END)
+        self.form.defense.set(None)
+        self.form.truss_catch.set(False)
+        self.form.range_catch.set(False)
+        self.form.human_catch.set(False)
+        self.form.match_result.set(None)
 
     def load_data_file(self, silent=False):
         """ Checks the data file for validity and loads its content
