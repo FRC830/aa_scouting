@@ -257,7 +257,7 @@ class Application(Frame):
             the data file
         """
         try:
-            f = open(self.filename)
+            f = open(self.filename, 'rb')
             content = f.read()
             data = pickle.loads(content) if len(content) else []
             assert isinstance(data, list)
@@ -278,7 +278,7 @@ class Application(Frame):
                 if not result:
                     sys.exit()
                 # Overwrite data file (only if confirmed)
-                with open(self.filename, 'w') as wfile:
+                with open(self.filename, 'wb') as wfile:
                     wfile.write(pickle.dumps([]))
             else:
                 raise IOError('Unable to load data file')
@@ -291,7 +291,7 @@ class Application(Frame):
     def save_data_file(self, data):
         if not isinstance(data, list):
             raise TypeError('data must be a list')
-        with open(self.filename, 'w') as f:
+        with open(self.filename, 'wb') as f:
             f.write(pickle.dumps(data))
 
 class CSVExporter(Toplevel):
