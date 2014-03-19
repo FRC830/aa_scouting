@@ -1,4 +1,4 @@
-import os
+import os, pickle
 try:
     from Tkinter import *
     import tkMessageBox as messagebox
@@ -23,7 +23,15 @@ class Form(object):
         return self.data[key]
 
     def get_data(self):
-        return self.data
+        """ Returns the data from each field """
+        d = {}
+        for key in self.data:
+            field = self.data[key]
+            if isinstance(key, Text):
+                d[key] = field.get('0.0', END)
+            else:
+                d[key] = field.get()
+        return d
 
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
@@ -35,9 +43,12 @@ class Application(Frame):
     def __init__(self, master):
         """initialize the window"""
         Frame.__init__(self, master)
+        self.form = Form()
         self.grid()
         self.create_fields()
         self.clear_entries()
+        self.filename = os.path.join('data', "scouting_data.txt")
+        self.after(100, self.check_data_file)
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
@@ -45,8 +56,8 @@ class Application(Frame):
               ).grid(row=0, column=0, columnspan=2, sticky=W)
         #match_num input field
         Label(self, text="Match #:").grid(row=1, column=0, sticky=W)
-        self.match_num = Entry(self)
-        self.match_num.grid(row=1,column=1,sticky=W)
+        self.form.match_num = Entry(self)
+        self.form.match_num.grid(row=1,column=1,sticky=W)
         #team_num input field
         Label(self, text="Team #:").grid(row=1, column=2)
         self.team_num = Entry(self)
@@ -58,21 +69,21 @@ class Application(Frame):
         #auton_high
         Label(self, text="Auton High Goal").grid(row=2, column=2)
         scoring_options=["N/A","Missed","Scored"]
-        self.auton_high=StringVar()
-        self.auton_high.set(None)
+        self.form.auton_high=StringVar()
+        self.form.auton_high.set(None)
         col=3
         for val in scoring_options:
-            Radiobutton(self, text = val, variable = self.auton_high, value=val
+            Radiobutton(self, text = val, variable = self.form.auton_high, value=val
                         ).grid(row = 2, column=col, sticky=E)
             col+=1
         #auton_low
         Label(self, text="Auton Low Goal").grid(row=3, column=2)
         scoring_options=["N/A","Missed","Scored"]
-        self.auton_low=StringVar()
-        self.auton_low.set(None)
+        self.form.auton_low=StringVar()
+        self.form.auton_low.set(None)
         col=3
         for val in scoring_options:
-            Radiobutton(self, text = val, variable = self.auton_low, value=val
+            Radiobutton(self, text = val, variable = self.form.auton_low, value=val
                         ).grid(row = 3, column=col, sticky=E)
             col+=1
         #teleop_high
@@ -177,44 +188,43 @@ class Application(Frame):
 
     def submit(self):
         """Read values from scouting form and save to a file"""
+        print(self.form.get_data())
         #store data in vars so G.U.I. can be cleared (not gooey, Steven)
-        coms = self.comments.get("0.0", END)
-        match = self.match_num.get()
-        team = self.team_num.get()
-        auton_ball = self.auton_ball_num.get()
-        auton_high = self.auton_high.get()
-        auton_low = self.auton_low.get()
-        tel_high = self.teleop_high.get()
-        tel_high_miss = self.teleop_high_miss.get()
-        tel_low = self.teleop_low.get()
-        tel_low_speed = self.teleop_low_speed.get()
-        p_ranged = self.ranged_pass.get()
-        p_truss = self.truss_pass.get()
-        fouls = self.fouls.get()
-        tech_fouls = self.tech_fouls.get()
-        defense = self.defense.get()
-        c_truss = self.truss_catch.get()
-        c_ranged = self.range_catch.get()
-        c_human = self.human_catch.get()
-        result = self.match_result.get()
+        #coms = self.comments.get("0.0", END)
+        #match = self.form.match_num.get()
+        #team = self.team_num.get()
+        #auton_ball = self.auton_ball_num.get()
+        #auton_high = self.form.auton_high.get()
+        #auton_low = self.form.auton_low.get()
+        #tel_high = self.teleop_high.get()
+        #tel_high_miss = self.teleop_high_miss.get()
+        #tel_low = self.teleop_low.get()
+        #tel_low_speed = self.teleop_low_speed.get()
+        #p_ranged = self.ranged_pass.get()
+        #p_truss = self.truss_pass.get()
+        #fouls = self.fouls.get()
+        #tech_fouls = self.tech_fouls.get()
+        #defense = self.defense.get()
+        #c_truss = self.truss_catch.get()
+        #c_ranged = self.range_catch.get()
+        #c_human = self.human_catch.get()
+        #result = self.match_result.get()
         #choose data to write to file
-        data = [match+"\n",
-            auton_ball+"\n",
-            auton_high+"\n",
-            auton_low+"\n",
-            coms]
-        # filename should be like 830_data.txt
-        filename = os.path.join('data', team + "_data.txt")
-        if os.path.exists(filename):
-            # Don't overwrite without confirmation
-            if not messagebox.askyesno('Overwrite',
-                    'The file for team "%s" already exists. Overwrite?' % team):
-                return
-        # this will create the file if it doesn't exist
-        a = open(filename,"w")
+        #data = [match+"\n",
+        #    auton_ball+"\n",
+        #    auton_high+"\n",
+        #    auton_low+"\n",
+        #    coms]
+        data = self.form.get_data()
+        #if os.path.exists(filename):
+        #    # Don't overwrite without confirmation
+        #    if not messagebox.askyesno('Overwrite',
+        #            'The file for team "%s" already exists. Overwrite?' % team):
+        #        return
+        contents = self.load_data_file()
         # write the latest data
-        a.writelines(data)
-        a.close()
+        contents.append(data)
+        self.save_data_file(contents)
         #clear entries
         self.clear_entries()
 
@@ -222,11 +232,11 @@ class Application(Frame):
     def clear_entries(self):
         """erase entries and give user a clean slate - Good as new!"""
         self.comments.delete("0.0", END)
-        self.match_num.delete("0", END)
+        self.form.match_num.delete("0", END)
         self.team_num.delete("0", END)
         self.auton_ball_num.delete("0", END)
-        self.auton_high.set(None)
-        self.auton_low.set(None)
+        self.form.auton_high.set(None)
+        self.form.auton_low.set(None)
         self.teleop_high.delete("0", END)
         self.teleop_high_miss.delete("0", END)
         self.teleop_low.delete("0", END)
@@ -240,6 +250,50 @@ class Application(Frame):
         self.range_catch.set(False)
         self.human_catch.set(False)
         self.match_result.set(None)
+
+    def load_data_file(self, silent=False):
+        """ Checks the data file for validity and loads its content
+        
+        silent: If true, raise an exception instead of prompting and clearing
+            the data file
+        """
+        try:
+            f = open(self.filename)
+            content = f.read()
+            data = pickle.loads(content) if len(content) else []
+            assert isinstance(data, list)
+            f.close()
+            return data
+        except (IOError) as e:
+            if silent:
+                raise  # original exception
+            messagebox.showerror('Error', 'Could not load data file: %s' % e)
+            sys.exit()
+        except Exception:
+            if not silent:
+                # Data file is corrupt - either clear file or exit
+                result = messagebox.askokcancel('Data file corrupt',
+                    'The data file is corrupt. Press OK to clear the file '
+                    'or cancel to quit.')
+                if not result:
+                    sys.exit()
+                # Overwrite data file (only if confirmed)
+                with open(self.filename, 'w') as wfile:
+                    wfile.write(pickle.dumps([]))
+            else:
+                raise IOError('Unable to load data file')
+        return False
+    
+    def check_data_file(self):
+        """ load_data_file, without a return value """
+        self.load_data_file()
+    
+    def save_data_file(self, data):
+        if not isinstance(data, list):
+            raise TypeError('data must be a list')
+        with open(self.filename, 'w') as f:
+            f.write(pickle.dumps(data))
+    
 
 if __name__ == '__main__':
     root = Tk()
