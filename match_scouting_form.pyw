@@ -1,8 +1,10 @@
 import os
 try:
     from Tkinter import *
+    import tkMessageBox as messagebox
 except ImportError:
     from tkinter import *
+    import tkinter.messagebox as messagebox
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
@@ -165,18 +167,23 @@ class Application(Frame):
                 auton_high+"\n",
                 auton_low+"\n",
                 coms]
-        #clear entries
+        # filename should be like 830_data.txt
+        filename = os.path.join('data', team + "_data.txt")
+        if os.path.exists(filename):
+            # Don't overwrite without confirmation
+            if not messagebox.askyesno('Overwrite',
+                    'The file for team "%s" already exists. Overwrite?' % team):
+                return
+        # clear entries
         self.comments.delete("0.0", END)
         self.match_num.delete("0", END)
         self.team_num.delete("0", END)
         self.auton_ball_num.delete("0", END)
         self.auton_high.set("N/A")
         self.auton_low.set("N/A")
-        #filename should be like 830_data.txt
-        filename = os.path.join('data', team + "_data.txt")
-        #this will create the file if it doesnt exist
+        # this will create the file if it doesn't exist
         a=open(filename,"w")
-        #write the latest data
+        # write the latest data
         a.writelines(data)
         a.close()
 
