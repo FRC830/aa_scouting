@@ -49,6 +49,7 @@ class Application(Frame):
         self.clear_entries()
         self.filename = os.path.join('data', "scouting_data.txt")
         self.after(100, self.check_data_file)
+        self.val_list=[self.match_num, self.team_num]
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
@@ -89,7 +90,7 @@ class Application(Frame):
         #teleop_high
         Label(self, text="Teleop High Goals:").grid(row=4, column=0, sticky=W)
         self.teleop_high = Entry(self)
-        self.teleop_high.grid(row=4,column=1,sticky=W)       
+        self.teleop_high.grid(row=4,column=1,sticky=W)
         #teleop_high_miss
         Label(self, text="High Goals Missed:").grid(row=4, column=2, sticky=W)
         self.teleop_high_miss = Entry(self)
@@ -180,12 +181,23 @@ class Application(Frame):
         #comments
         Label(self, text="Comments:").grid(row=19, column=0)
         self.comments = Text(self, width = 40, height=5, wrap=WORD,
-                             background='#ffff00')
+                             background='#ccccff')
         self.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
         #submit button
-        Button(self, text="Submit Form", command = self.submit
+        Button(self, text="Submit Form", command = self.check_submit
                ).grid(row=20, column=4, sticky=E)
-
+    def check_submit(self):
+        """checks if required fields are filled, if so it submits"""
+        good_to_submit = True
+        for field in self.val_list:
+            if not field.get():
+                #a field has not been completed
+                ######################
+                #field.bg= "#ffaaaa"##
+                ######################
+                good_to_submit = False
+        if good_to_submit:
+            self.submit()
     def submit(self):
         """Read values from scouting form and save to a file"""
         print(self.form.get_data())
@@ -253,7 +265,7 @@ class Application(Frame):
 
     def load_data_file(self, silent=False):
         """ Checks the data file for validity and loads its content
-        
+
         silent: If true, raise an exception instead of prompting and clearing
             the data file
         """
@@ -283,17 +295,17 @@ class Application(Frame):
             else:
                 raise IOError('Unable to load data file')
         return False
-    
+
     def check_data_file(self):
         """ load_data_file, without a return value """
         self.load_data_file()
-    
+
     def save_data_file(self, data):
         if not isinstance(data, list):
             raise TypeError('data must be a list')
         with open(self.filename, 'w') as f:
             f.write(pickle.dumps(data))
-    
+
 
 if __name__ == '__main__':
     root = Tk()
