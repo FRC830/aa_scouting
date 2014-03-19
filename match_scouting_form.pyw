@@ -1,10 +1,23 @@
-import os, pickle
+import os, pickle, csv, sys
+PYTHON = int(sys.version.split('.')[0])  # either 2 or 3
 try:
+    # Python 2
     from Tkinter import *
     import tkMessageBox as messagebox
+    import tkFileDialog as filedialog
 except ImportError:
+    # Python 3
     from tkinter import *
     import tkinter.messagebox as messagebox
+    import tkinter.filedialog as filedialog
+
+# Form fields, in order
+form_fields = [
+    "match_num", "team_num", "auton_ball_num", "auton_high", "auton_low",
+    "teleop_high", "teleop_high_miss", "teleop_low", "teleop_low_speed",
+    "ranged_pass", "truss_pass", "fouls", "tech_fouls", "defense",
+    "truss_catch", "range_catch", "human_catch", "match_result", "comments"
+]
 
 class Form(object):
     """ Form data handler """
@@ -33,6 +46,9 @@ class Form(object):
             # Check field type
             if isinstance(field, Text):
                 d[key] = field.get('0.0', END)
+            elif isinstance(field, BooleanVar):
+                # Convert to yes or no
+                d[key] = 'yes' if int(bool(field.get())) else 'no'
             else:
                 try:
                     d[key] = field.get()
@@ -201,8 +217,10 @@ class Application(Frame):
                              background='#ffff00')
         self.form.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
         #submit button
-        Button(self, text="Submit Form", command = self.check_submit
-               ).grid(row=20, column=4, sticky=E)
+        Button(self, text="Submit Form", command = self.check_submit) \
+            .grid(row=20, column=4, sticky=E)
+        Button(self, text="CSV export", command=CSVExporter.new) \
+            .grid(row=21, column=0, sticky=E)
     def check_submit(self):
         """checks if required fields are filled, if so it submits"""
         good_to_submit = True
@@ -257,11 +275,17 @@ class Application(Frame):
             the data file
         """
         try:
-            f = open(self.filename, 'rb')
-            content = f.read()
-            data = pickle.loads(content) if len(content) else []
-            assert isinstance(data, list)
-            f.close()
+            if os.path.exists(self.filename):
+                f = open(self.filename, 'rb')
+                content = f.read()
+                data = pickle.loads(content)
+                assert isinstance(data, list)
+                f.close()
+            else:
+                # Create file
+                self.save_data_file([])
+                content = ''
+                data = []
             return data
         except (IOError) as e:
             if silent:
@@ -278,8 +302,7 @@ class Application(Frame):
                 if not result:
                     sys.exit()
                 # Overwrite data file (only if confirmed)
-                with open(self.filename, 'wb') as wfile:
-                    wfile.write(pickle.dumps([]))
+                self.save_data_file([])
             else:
                 raise IOError('Unable to load data file')
         return False
@@ -292,7 +315,7 @@ class Application(Frame):
         if not isinstance(data, list):
             raise TypeError('data must be a list')
         with open(self.filename, 'wb') as f:
-            f.write(pickle.dumps(data))
+            f.write(pickle.dumps(data, protocol=2))
 
 class CSVExporter(Toplevel):
     def __init__(self, master):
@@ -303,10 +326,10 @@ class CSVExporter(Toplevel):
 
     def draw(self):
         Label(self, text='Data to export:').grid(row=1, column=1, columnspan=3)
-        listbox = Listbox(self, selectmode=MULTIPLE)
+        self.list = listbox = Listbox(self, selectmode=MULTIPLE)
         listbox.grid(row=2, column=1, columnspan=3, padx=25)
-        data = app.load_data_file()
-        for i, d in enumerate(data):
+        self.data = app.load_data_file()
+        for i, d in enumerate(self.data):
             listbox.insert(END,
                 '#%i: Match %s, team %s' % (i+1, d['match_num'], d['team_num']))
 
@@ -323,9 +346,51 @@ class CSVExporter(Toplevel):
         Button(self, text='Refresh', command=self.draw).grid(row=4, column=1)
         Button(self, text='Cancel', command=self.destroy).grid(row=4, column=2)
         Button(self, text='Export', command=self.export).grid(row=4, column=3)
+        if not len(self.data):
+            messagebox.showerror('No data', 'No data to export!')
+            self.destroy()
 
     def export(self):
-        messagebox.showinfo('Error', 'Not implemented')
+        # Generate data & check
+        rows = [self.data[int(x)] for x in self.list.curselection()]
+        if not len(rows):
+            messagebox.showinfo("Error", "No data to export")
+            return
+        # Dialog should prevent overwriting an existing file accidentally
+        filename = filedialog.asksaveasfilename(defaultextension='csv')
+        if not filename:
+            return
+        # Column names, used to sort data (dictionaries aren't sorted)
+        col_names = form_fields
+        for k in rows[0].keys():
+            # Add any column names not in form_fields.
+            # Note that these fields will not necessarily be in the same order
+            # across different CSV files, so declaring them in form_fields is
+            # a good idea.
+            if k not in col_names:
+                col_names.append(k)
+        # Options for open()
+        opts = {}
+        if PYTHON == 3:
+            # Use utf-8 with Python 3
+            opts['encoding'] = 'utf-8'
+        with open(filename, 'w', **opts) as csvfile:
+            writer = csv.writer(csvfile)
+            # Column headers
+            writer.writerow(self.process_column_names(col_names))
+            for r in rows:
+                # If a column doesn't exist in a row, leave it blank
+                row_values = [(r[col_names[i]] if col_names[i] in r else '')
+                    for i in range(len(col_names))]
+                writer.writerow(row_values)
+        # Close when done
+        self.destroy()
+
+    def process_column_names(self, names):
+        """ Make column names more human-readable """
+        return list(map(
+            lambda n: n.replace('_', ' ').replace('num', 'number').capitalize(),
+        names))
 
     @staticmethod
     def new():
