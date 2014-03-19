@@ -41,6 +41,15 @@ class Form(object):
                                     (field.__class__, e))
         return d
 
+class MenuBar(Menu):
+    def __init__(self,parent):
+        Menu.__init__(self,parent)
+        fileMenu = Menu(self, tearoff=False)
+        self.add_cascade(label="File", underline=0, menu=fileMenu)
+        fileMenu.add_command(label='CSV export', underline=1, command=CSVExporter.new)
+        fileMenu.add_separator()
+        fileMenu.add_command(label="Exit", underline=1, command=self.quit)
+
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
@@ -259,7 +268,8 @@ class Application(Frame):
                 raise  # original exception
             messagebox.showerror('Error', 'Could not load data file: %s' % e)
             sys.exit()
-        except Exception:
+        except Exception as e:
+            print(e)
             if not silent:
                 # Data file is corrupt - either clear file or exit
                 result = messagebox.askokcancel('Data file corrupt',
@@ -284,9 +294,48 @@ class Application(Frame):
         with open(self.filename, 'w') as f:
             f.write(pickle.dumps(data))
 
+class CSVExporter(Toplevel):
+    def __init__(self, master):
+        Toplevel.__init__(self, master)
+        self.title('CSV export')
+        self.grid()
+        self.draw()
+
+    def draw(self):
+        Label(self, text='Data to export:').grid(row=1, column=1, columnspan=3)
+        listbox = Listbox(self, selectmode=MULTIPLE)
+        listbox.grid(row=2, column=1, columnspan=3, padx=25)
+        data = app.load_data_file()
+        for i, d in enumerate(data):
+            listbox.insert(END,
+                '#%i: Match %s, team %s' % (i+1, d['match_num'], d['team_num']))
+
+        def select_all():
+            listbox.selection_set(0, END)
+        def select_none():
+            listbox.selection_clear(0, END)
+        select_all()  # Start with everything selected
+
+        Button(self, text='Select all',
+               command=select_all).grid(row=3, column=1)
+        Button(self, text='Select none',
+            command=select_none).grid(row=3, column=2)
+        Button(self, text='Refresh', command=self.draw).grid(row=4, column=1)
+        Button(self, text='Cancel', command=self.destroy).grid(row=4, column=2)
+        Button(self, text='Export', command=self.export).grid(row=4, column=3)
+
+    def export(self):
+        messagebox.showinfo('Error', 'Not implemented')
+
+    @staticmethod
+    def new():
+        CSVExporter(root)
+
 
 if __name__ == '__main__':
     root = Tk()
     root.title("Aerial Assist Match Scouting Form")
     app = Application(root)
+    menu = MenuBar(root)
+    root.config(menu=menu)
     root.mainloop()
