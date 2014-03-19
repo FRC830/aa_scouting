@@ -8,8 +8,10 @@ except ImportError:
 
 class Form(object):
     """ Form data handler """
+    # These properties are reserved for this class
     _reserved = ('data', '_reserved')
     def __init__(self):
+        # Use object.__setattr__ instead of Form.__setattr__ to avoid recursion
         super(Form, self).__setattr__('data', {})
 
     def __setattr__(self, key, value):
@@ -19,18 +21,24 @@ class Form(object):
 
     def __getattr__(self, key):
         if key in self._reserved:
+            # Avoid recursion
             return super(Form, self).__getattr__(key)
         return self.data[key]
 
     def get_data(self):
         """ Returns the data from each field """
-        d = {}
+        d = {}  # dictionary
         for key in self.data:
             field = self.data[key]
+            # Check field type
             if isinstance(field, Text):
                 d[key] = field.get('0.0', END)
             else:
-                d[key] = field.get()
+                try:
+                    d[key] = field.get()
+                except TypeError as e:
+                    raise TypeError('get() failed for field type %s: %s' %
+                                    (field.__class__, e))
         return d
 
 #values:
@@ -200,13 +208,16 @@ class Application(Frame):
             self.submit()
     def submit(self):
         """Read values from scouting form and save to a file"""
-        data = self.form.get_data()
-        contents = self.load_data_file()
-        # add data to end of list
-        contents.append(data)
-        self.save_data_file(contents)
-        #clear entries
-        self.clear_entries()
+        try:
+            data = self.form.get_data()
+            contents = self.load_data_file()
+            # add data to end of list
+            contents.append(data)
+            self.save_data_file(contents)
+            #clear entries
+            self.clear_entries()
+        except Exception as e:
+            messagebox.showinfo('Internal error', e)
 
     def clear_entries(self):
         """erase entries and give user a clean slate - Good as new!"""
