@@ -9,7 +9,7 @@ except ImportError:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
 #truss_pass, fouls, tech_fouls, defense, truss_catch, range_catch, human_catch
-#comments
+#match_result, comments
 class Application(Frame):
     """Application window for scouting sheet"""
     def __init__(self, master):
@@ -156,17 +156,32 @@ class Application(Frame):
 
     def submit(self):
         """Read values from scouting form and save to a file"""
+        #store data in vars so G.U.I. can be cleared (not gooey, Steven)
         coms = self.comments.get("0.0", END)
         match = self.match_num.get()
         team = self.team_num.get()
         auton_ball = self.auton_ball_num.get()
         auton_high = self.auton_high.get()
         auton_low = self.auton_low.get()
+        tel_high = self.teleop_high.get()
+        tel_high_miss = self.teleop_high_miss.get()
+        tel_low = self.teleop_low.get()
+        tel_low_speed = self.teleop_low_speed.get()
+        p_ranged = self.ranged_pass.get()
+        p_truss = self.truss_pass.get()
+        fouls = self.fouls.get()
+        tech_fouls = self.tech_fouls.get()
+        defense = self.defense.get()
+        c_truss = self.truss_catch.get()
+        c_ranged = self.range_catch.get()
+        c_human = self.human_catch.get()
+        result = self.match_result.get()
+        #choose data to write to file
         data = [match+"\n",
-                auton_ball+"\n",
-                auton_high+"\n",
-                auton_low+"\n",
-                coms]
+            auton_ball+"\n",
+            auton_high+"\n",
+            auton_low+"\n",
+            coms]
         # filename should be like 830_data.txt
         filename = os.path.join('data', team + "_data.txt")
         if os.path.exists(filename):
@@ -174,19 +189,36 @@ class Application(Frame):
             if not messagebox.askyesno('Overwrite',
                     'The file for team "%s" already exists. Overwrite?' % team):
                 return
-        # clear entries
+        # this will create the file if it doesn't exist
+        a = open(filename,"w")
+        # write the latest data
+        a.writelines(data)
+        a.close()
+        #clear entries
+        self.clear_entries()
+
+
+    def clear_entries(self):
+        """erase entries and give user a clean slate - Good as new!"""
         self.comments.delete("0.0", END)
         self.match_num.delete("0", END)
         self.team_num.delete("0", END)
         self.auton_ball_num.delete("0", END)
-        self.auton_high.set("N/A")
-        self.auton_low.set("N/A")
-        # this will create the file if it doesn't exist
-        a=open(filename,"w")
-        # write the latest data
-        a.writelines(data)
-        a.close()
-
+        self.auton_high.set(None)
+        self.auton_low.set(None)
+        self.teleop_high.delete("0", END)
+        self.teleop_high_miss.delete("0", END)
+        self.teleop_low.delete("0", END)
+        self.teleop_low_speed.set(None)
+        self.truss_pass.set(None)
+        self.ranged_pass.set(None)
+        self.fouls.delete("0", END)
+        self.tech_fouls.delete("0", END)
+        self.defense.set(None)
+        self.truss_catch.set(False)
+        self.range_catch.set(False)
+        self.human_catch.set(False)
+        self.match_result.set(None)
     
 root = Tk()
 root.title("Aerial Assist Match Scouting Form")
