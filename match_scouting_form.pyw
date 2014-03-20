@@ -1,4 +1,4 @@
-import os, pickle, csv, sys
+import os, pickle, csv, sys, math, random, zlib
 PYTHON = int(sys.version.split('.')[0])  # either 2 or 3
 try:
     # Python 2
@@ -20,6 +20,29 @@ form_fields = [
     "ranged_pass", "truss_pass", "fouls", "tech_fouls", "defense",
     "truss_catch", "range_catch", "human_catch", "match_result", "comments"
 ]
+
+def initialize():
+    """ Perform initialization
+
+    Updates old installations
+    """
+    # Create data folder
+    if not os.path.isdir('data'):
+        if os.path.exists('data'):
+            os.rename('data', 'data_%i' % hash(random.random()))
+        os.mkdir('data')
+    # Move old data files
+    for f in os.listdir(os.getcwd()):
+        if (f.startswith('data_') or f.endswith('_data.txt')
+                or f.endswith('_data')):
+            new_filename = os.path.join('data', f)
+            while os.path.exists(new_filename):
+                new_filename += '_'
+            os.rename(f, new_filename)
+    # Rename scouting_data.txt to scouting_data
+    filename = os.path.join('data', 'scouting_data.txt')
+    if os.path.exists(filename):
+        os.rename(filename, os.path.join('data', 'scouting_data'))
 
 class Form(object):
     """ Form data handler """
@@ -83,7 +106,7 @@ class Application(Frame):
         self.grid()
         self.create_fields()
         self.clear_entries()
-        self.filename = os.path.join('data', "scouting_data.txt")
+        self.filename = os.path.join('data', "scouting_data")
         self.after(100, self.check_data_file)
         self.val_list=[self.match_num, self.team_num, self.auton_ball_num,
                        self.auton_high, self.auton_low, self.teleop_high,
@@ -308,6 +331,13 @@ class Application(Frame):
             if os.path.exists(self.filename):
                 f = open(self.filename, 'rb')
                 content = f.read()
+                # Decompress
+                try:
+                    content = zlib.decompress(content)
+                except zlib.error:
+                    # File is not zlib-compressed; skip decompression
+                    pass
+                # Unpickle
                 data = pickle.loads(content)
                 assert isinstance(data, list)
                 f.close()
@@ -345,7 +375,15 @@ class Application(Frame):
         if not isinstance(data, list):
             raise TypeError('data must be a list')
         with open(self.filename, 'wb') as f:
-            f.write(pickle.dumps(data, protocol=2))
+            # pickle - use protocol 2 for compatibility between Python 2 and 3
+            content = pickle.dumps(data, protocol=2)
+            # Compress
+            try:
+                content = zlib.compress(content)
+            except zlib.error as e:
+                # Log error but don't abort saving
+                print('Failed to compress data: %s' % e)
+            f.write(content)
 
 class CSVExporter(CSVExporterBase):
     """ CSV export subclass """
@@ -354,6 +392,7 @@ class CSVExporter(CSVExporterBase):
         return app.load_data_file()
 
 if __name__ == '__main__':
+    initialize()
     root = Tk()
     root.title("Aerial Assist Match Scouting Form")
     app = Application(root)
