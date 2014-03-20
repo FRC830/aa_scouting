@@ -11,6 +11,8 @@ except ImportError:
     import tkinter.messagebox as messagebox
     import tkinter.filedialog as filedialog
 
+from lib.csvexport import CSVExporterBase
+
 # Form fields, in order
 form_fields = [
     "match_num", "team_num", "auton_ball_num", "auton_high", "auton_low",
@@ -62,7 +64,8 @@ class MenuBar(Menu):
         Menu.__init__(self,parent)
         fileMenu = Menu(self, tearoff=False)
         self.add_cascade(label="File", underline=0, menu=fileMenu)
-        fileMenu.add_command(label='CSV export', underline=1, command=CSVExporter.new)
+        fileMenu.add_command(label='CSV export', underline=1,
+            command=lambda: CSVExporter(root))
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
 
@@ -231,13 +234,25 @@ class Application(Frame):
         #submit button
         Button(self, text="Submit Form", command = self.check_submit) \
             .grid(row=20, column=4, sticky=E)
-        Button(self, text="CSV export", command=CSVExporter.new) \
-            .grid(row=21, column=0, sticky=E)
+        # Helper function to bind background clearing to field
+        # Used for scoping - otherwise, field refers to the last field from loop
+        def bind_to_field(field):
+            field.bind('<Key>',
+                lambda event: field.config(background='white'))
+        # A list of Entry fields (all required)
+        self.entry_fields = []
+        for key in self.form.data:
+            field = self.form.data[key]
+            if isinstance(field, Entry):
+                self.entry_fields.append(field)
+                bind_to_field(field)
     def check_submit(self):
         """checks if required fields are filled, if so it submits"""
         good_to_submit = True
-        for field in self.val_list:
-            if not field.get() or field.get()=="None":
+        for field in self.entry_fields:
+            # default background color
+            field.config(background='white')
+            if not field.get():
                 #a field has not been completed
                 ######################
                 #field.bg= "#ffaaaa"##
@@ -264,21 +279,21 @@ class Application(Frame):
         self.form.match_num.delete("0", END)
         self.form.team_num.delete("0", END)
         self.form.auton_ball_num.delete("0", END)
-        self.form.auton_high.set(None)
-        self.form.auton_low.set(None)
+        self.form.auton_high.set('N/A')
+        self.form.auton_low.set('N/A')
         self.form.teleop_high.delete("0", END)
         self.form.teleop_high_miss.delete("0", END)
         self.form.teleop_low.delete("0", END)
-        self.form.teleop_low_speed.set(None)
-        self.form.truss_pass.set(None)
-        self.form.ranged_pass.set(None)
+        self.form.teleop_low_speed.set('N/A')
+        self.form.truss_pass.set('N/A')
+        self.form.ranged_pass.set('N/A')
         self.form.fouls.delete("0", END)
         self.form.tech_fouls.delete("0", END)
-        self.form.defense.set(None)
+        self.form.defense.set('N/A')
         self.form.truss_catch.set(False)
         self.form.range_catch.set(False)
         self.form.human_catch.set(False)
-        self.form.match_result.set(None)
+        self.form.match_result.set('Tie')
 
     def load_data_file(self, silent=False):
         """ Checks the data file for validity and loads its content
@@ -329,85 +344,11 @@ class Application(Frame):
         with open(self.filename, 'wb') as f:
             f.write(pickle.dumps(data, protocol=2))
 
-class CSVExporter(Toplevel):
-    def __init__(self, master):
-        Toplevel.__init__(self, master)
-        self.title('CSV export')
-        self.grid()
-        self.draw()
-
-    def draw(self):
-        Label(self, text='Data to export:').grid(row=1, column=1, columnspan=3)
-        self.list = listbox = Listbox(self, selectmode=MULTIPLE)
-        listbox.grid(row=2, column=1, columnspan=3, padx=25)
-        self.data = app.load_data_file()
-        for i, d in enumerate(self.data):
-            listbox.insert(END,
-                '#%i: Match %s, team %s' % (i+1, d['match_num'], d['team_num']))
-
-        def select_all():
-            listbox.selection_set(0, END)
-        def select_none():
-            listbox.selection_clear(0, END)
-        select_all()  # Start with everything selected
-
-        Button(self, text='Select all',
-               command=select_all).grid(row=3, column=1)
-        Button(self, text='Select none',
-            command=select_none).grid(row=3, column=2)
-        Button(self, text='Refresh', command=self.draw).grid(row=4, column=1)
-        Button(self, text='Cancel', command=self.destroy).grid(row=4, column=2)
-        Button(self, text='Export', command=self.export).grid(row=4, column=3)
-        if not len(self.data):
-            messagebox.showerror('No data', 'No data to export!')
-            self.destroy()
-
-    def export(self):
-        # Generate data & check
-        rows = [self.data[int(x)] for x in self.list.curselection()]
-        if not len(rows):
-            messagebox.showinfo("Error", "No data to export")
-            return
-        # Dialog should prevent overwriting an existing file accidentally
-        filename = filedialog.asksaveasfilename(defaultextension='csv')
-        if not filename:
-            return
-        # Column names, used to sort data (dictionaries aren't sorted)
-        col_names = form_fields
-        for k in rows[0].keys():
-            # Add any column names not in form_fields.
-            # Note that these fields will not necessarily be in the same order
-            # across different CSV files, so declaring them in form_fields is
-            # a good idea.
-            if k not in col_names:
-                col_names.append(k)
-        # Options for open()
-        opts = {}
-        if PYTHON == 3:
-            # Use utf-8 with Python 3
-            opts['encoding'] = 'utf-8'
-        with open(filename, 'w', **opts) as csvfile:
-            writer = csv.writer(csvfile)
-            # Column headers
-            writer.writerow(self.process_column_names(col_names))
-            for r in rows:
-                # If a column doesn't exist in a row, leave it blank
-                row_values = [(r[col_names[i]] if col_names[i] in r else '')
-                    for i in range(len(col_names))]
-                writer.writerow(row_values)
-        # Close when done
-        self.destroy()
-
-    def process_column_names(self, names):
-        """ Make column names more human-readable """
-        return list(map(
-            lambda n: n.replace('_', ' ').replace('num', 'number').capitalize(),
-        names))
-
-    @staticmethod
-    def new():
-        CSVExporter(root)
-
+class CSVExporter(CSVExporterBase):
+    """ CSV export subclass """
+    col_names = form_fields
+    def get_data(self):
+        return app.load_data_file()
 
 if __name__ == '__main__':
     root = Tk()
