@@ -82,7 +82,11 @@ class Application(Frame):
         self.clear_entries()
         self.filename = os.path.join('data', "scouting_data.txt")
         self.after(100, self.check_data_file)
-        self.val_list=[self.match_num, self.team_num]
+        self.val_list=[self.match_num, self.team_num, self.auton_ball_num,
+                       self.auton_high, self.auton_low, self.teleop_high,
+                       self.teleop_high_miss, self.teleop_low, self.teleop_low_speed,
+                       self.ranged_pass, self.truss_pass, self.fouls,
+                       self.tech_fouls, self.defense, self.match_result]
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
@@ -170,6 +174,14 @@ class Application(Frame):
             Radiobutton(self, variable = self.form.truss_pass, value = val
                         ).grid(row=9, column=col)
             col+=1
+        #ranged_pass
+        self.ranged_pass = StringVar()
+        self.ranged_pass.set(None)
+        col = 1
+        for val in pass_options:
+            Radiobutton(self, variable = self.ranged_pass, value = val
+                        ).grid(row=10, column=col)
+            col+=1
         #fouls
         Label(self, text="Fouls:").grid(row=12, column=0, sticky=E)
         self.form.fouls=Entry(self)
@@ -225,7 +237,7 @@ class Application(Frame):
         """checks if required fields are filled, if so it submits"""
         good_to_submit = True
         for field in self.val_list:
-            if not field.get():
+            if not field.get() or field.get()=="None":
                 #a field has not been completed
                 ######################
                 #field.bg= "#ffaaaa"##
