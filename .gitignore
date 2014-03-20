@@ -1,3 +1,9 @@
 # Ignore all data files
 data/*
 !data/.ignore_this_file
+
+# Python things
+*.py[cod]
+
+# OS things
+.DS_Store

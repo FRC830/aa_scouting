@@ -1,4 +1,14 @@
-import os, pickle, csv, sys, math, random, zlib
+#!/usr/bin/env python
+""" Team 830 scouting forms """
+import argparse
+import csv
+import math
+import os
+import pickle
+import random
+import sys
+import zlib
+
 PYTHON = int(sys.version.split('.')[0])  # either 2 or 3
 try:
     # Python 2
@@ -265,26 +275,31 @@ class Application(Frame):
                 if field.get():
                     field.config(background='white')
             field.bind('<KeyRelease>', handler)
-        # A list of Entry fields (all required)
-        self.entry_fields = []
+        # Lists of required fields
+        self.entries = []
+        self.radio_buttons = []
         for key in self.form.data:
             field = self.form.data[key]
             if isinstance(field, Entry):
-                self.entry_fields.append(field)
+                self.entries.append(field)
                 bind_to_field(field)
+            elif isinstance(field, StringVar):
+                # Radio button
+                self.radio_buttons.append(field)
     def check_submit(self):
         """checks if required fields are filled, if so it submits"""
-        good_to_submit = True
-        for field in self.entry_fields:
+        valid = True
+        for field in self.entries:
             # default background color
             field.config(background='white')
             if not field.get():
                 #a field has not been completed
-                ######################
-                #field.bg= "#ffaaaa"##
-                ######################
-                good_to_submit = False
-        if good_to_submit:
+                field.config(background='#ffaaaa')
+                valid = False
+        for field in self.radio_buttons:
+            if field.get() == 'None':
+                valid = False
+        if valid:
             self.submit()
     def submit(self):
         """Read values from scouting form and save to a file"""
@@ -305,21 +320,21 @@ class Application(Frame):
         self.form.match_num.delete("0", END)
         self.form.team_num.delete("0", END)
         self.form.auton_ball_num.delete("0", END)
-        self.form.auton_high.set('N/A')
-        self.form.auton_low.set('N/A')
+        self.form.auton_high.set('None')
+        self.form.auton_low.set('None')
         self.form.teleop_high.delete("0", END)
         self.form.teleop_high_miss.delete("0", END)
         self.form.teleop_low.delete("0", END)
-        self.form.teleop_low_speed.set('N/A')
-        self.form.truss_pass.set('N/A')
-        self.form.ranged_pass.set('N/A')
+        self.form.teleop_low_speed.set('None')
+        self.form.truss_pass.set('None')
+        self.form.ranged_pass.set('None')
         self.form.fouls.delete("0", END)
         self.form.tech_fouls.delete("0", END)
-        self.form.defense.set('N/A')
+        self.form.defense.set('None')
         self.form.truss_catch.set(False)
         self.form.range_catch.set(False)
         self.form.human_catch.set(False)
-        self.form.match_result.set('Tie')
+        self.form.match_result.set('None')
 
     def load_data_file(self, silent=False):
         """ Checks the data file for validity and loads its content
@@ -338,7 +353,10 @@ class Application(Frame):
                     # File is not zlib-compressed; skip decompression
                     pass
                 # Unpickle
-                data = pickle.loads(content)
+                if content:
+                    data = pickle.loads(content)
+                else:
+                    data = []
                 assert isinstance(data, list)
                 f.close()
             else:

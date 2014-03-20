@@ -13,14 +13,22 @@ except ImportError:
     import tkinter.filedialog as filedialog
 
 class CSVExporterBase(Toplevel):
+    """ Base CSV Exporter class
+
+    Do not instantiate this directly - instead, make a subclass and specify:
+    * col_names: A list of column names (must exist, but content is optional)
+    * get_data: A function that returns data to save (a list of dicts)
+    """
     window_title = 'CSV export'
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title(self.window_title)
         self.grid()
         self.draw()
+        self.bind('<Key>', self.keypress)
 
     def draw(self):
+        """ Draws widgets """
         Label(self, text='Data to export:').grid(row=1, column=1, columnspan=3)
         self.list = listbox = Listbox(self, selectmode=MULTIPLE)
         listbox.grid(row=2, column=1, columnspan=3, padx=25)
@@ -41,12 +49,22 @@ class CSVExporterBase(Toplevel):
             command=select_none).grid(row=3, column=2)
         Button(self, text='Refresh', command=self.draw).grid(row=4, column=1)
         Button(self, text='Cancel', command=self.destroy).grid(row=4, column=2)
-        Button(self, text='Export', command=self.export).grid(row=4, column=3)
+        submit = Button(self, text='Export', command=self.export)
+        submit.grid(row=4, column=3)
+        submit.config(default='active')
         if not len(self.data):
             messagebox.showerror('No data', 'No data to export!')
             self.destroy()
 
+    def keypress(self, event):
+        """ Handles keyboard input to window """
+        if event.keysym == 'Escape':
+            self.destroy()
+        if event.keysym == 'Return':
+            self.export()
+
     def export(self):
+        """ Prompts for a location and exports CSV data """
         # Generate data & check
         rows = [self.data[int(x)] for x in self.list.curselection()]
         if not len(rows):
@@ -99,5 +117,3 @@ class CSVExporterBase(Toplevel):
             return self.col_names
         else:
             raise NotImplementedError('col_names should be declared in a subclass')
-
-
