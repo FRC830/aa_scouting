@@ -237,8 +237,11 @@ class Application(Frame):
         # Helper function to bind background clearing to field
         # Used for scoping - otherwise, field refers to the last field from loop
         def bind_to_field(field):
-            field.bind('<Key>',
-                lambda event: field.config(background='white'))
+            # Helper function to handle key events
+            def handler(event):
+                if field.get():
+                    field.config(background='white')
+            field.bind('<KeyRelease>', handler)
         # A list of Entry fields (all required)
         self.entry_fields = []
         for key in self.form.data:
