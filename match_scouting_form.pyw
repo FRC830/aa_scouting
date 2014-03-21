@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """ Team 830 scouting forms """
-import argparse
 import csv
 import math
 import os
