@@ -20,22 +20,33 @@ class CSVExporterBase(Toplevel):
     * get_data: A function that returns data to save (a list of dicts)
     """
     window_title = 'CSV export'
+    row_format = 'Row #{id}: {data}'
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title(self.window_title)
         self.grid()
+        # Set columns 1 and 5 to resize with window
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(5, weight=1)
         self.draw()
         self.bind('<Key>', self.keypress)
+        # geometry is width x height + x + y
+        position = tuple(int(x) + 20 for x in master.geometry().split('+', 1)[1].split('+'))
+        self.geometry('+%i+%i' % position)
 
     def draw(self):
         """ Draws widgets """
-        Label(self, text='Data to export:').grid(row=1, column=1, columnspan=3)
+        Label(self, text='Data to export:').grid(row=1, column=2, columnspan=3)
         self.list = listbox = Listbox(self, selectmode=MULTIPLE)
-        listbox.grid(row=2, column=1, columnspan=3, padx=25)
-        self.data = self.__get_data()
+        listbox.grid(row=2, column=1, columnspan=5, padx=15, sticky=E+W)
+        self.data = self.__load_data()
         for i, d in enumerate(self.data):
-            listbox.insert(END,
-                '#%i: Match %s, team %s' % (i+1, d['match_num'], d['team_num']))
+            listbox.insert(END, self.row_format.format(id=i+1, data=d))
+
+        self.save_clear_data = BooleanVar()
+        Checkbutton(self, text='Remove rows after saving',
+            variable=self.save_clear_data).grid(row=3, column=2, columnspan=3)
+        self.save_clear_data.set(True)
 
         def select_all():
             listbox.selection_set(0, END)
@@ -44,13 +55,13 @@ class CSVExporterBase(Toplevel):
         select_all()  # Start with everything selected
 
         Button(self, text='Select all',
-               command=select_all).grid(row=3, column=1)
+               command=select_all).grid(row=4, column=2)
         Button(self, text='Select none',
-            command=select_none).grid(row=3, column=2)
-        Button(self, text='Refresh', command=self.draw).grid(row=4, column=1)
-        Button(self, text='Cancel', command=self.destroy).grid(row=4, column=2)
+            command=select_none).grid(row=4, column=3)
+        Button(self, text='Refresh', command=self.draw).grid(row=5, column=2)
+        Button(self, text='Cancel', command=self.destroy).grid(row=5, column=3)
         submit = Button(self, text='Export', command=self.export)
-        submit.grid(row=4, column=3)
+        submit.grid(row=5, column=4)
         submit.config(default='active')
         if not len(self.data):
             messagebox.showerror('No data', 'No data to export!')
@@ -106,11 +117,17 @@ class CSVExporterBase(Toplevel):
             lambda n: n.replace('_', ' ').replace('num', 'number').capitalize(),
         names))
 
-    def __get_data(self):
-        if hasattr(self, 'get_data') and hasattr(self.get_data, '__call__'):
-            return self.get_data()
+    def __load_data(self):
+        if hasattr(self, 'load_data') and hasattr(self.load_data, '__call__'):
+            return self.load_data()
         else:
-            raise NotImplementedError('get_data should be implemented in a subclass')
+            raise NotImplementedError('load_data should be implemented in a subclass')
+
+    def __save_data(self):
+        if hasattr(self, 'save_data') and hasattr(self.save_data, '__call__'):
+            return self.save_data()
+        else:
+            raise NotImplementedError('save_data should be implemented in a subclass')
 
     def __get_col_names(self):
         if hasattr(self, 'col_names'):

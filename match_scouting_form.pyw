@@ -406,7 +406,8 @@ class Application(Frame):
 class CSVExporter(CSVExporterBase):
     """ CSV export subclass """
     col_names = form_fields
-    def get_data(self):
+    row_format = '#{id}: Match {data[match_num]}, team {data[team_num]}'
+    def load_data(self):
         return app.load_data_file()
 
 if __name__ == '__main__':
