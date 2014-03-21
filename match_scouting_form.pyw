@@ -126,7 +126,7 @@ class Application(Frame):
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
-        Label(self, text = "(c) 2014 Colin Bott"
+        Label(self, text = "FRC team 830"
               ).grid(row=0, column=0, columnspan=2, sticky=W)
         #match_num input field
         Label(self, text="Match #:").grid(row=1, column=0, sticky=W)
