@@ -39,9 +39,7 @@ class CSVExporterBase(Toplevel):
         Label(self, text='Data to export:').grid(row=1, column=2, columnspan=3)
         self.list = listbox = Listbox(self, selectmode=MULTIPLE)
         listbox.grid(row=2, column=1, columnspan=5, padx=15, sticky=E+W)
-        self.data = self.__load_data()
-        for i, d in enumerate(self.data):
-            listbox.insert(END, self.row_format.format(id=i+1, data=d))
+        self.draw_listbox()
 
         self.save_clear_data = BooleanVar()
         Checkbutton(self, text='Remove rows after saving',
@@ -58,7 +56,7 @@ class CSVExporterBase(Toplevel):
                command=select_all).grid(row=4, column=2)
         Button(self, text='Select none',
             command=select_none).grid(row=4, column=3)
-        Button(self, text='Refresh', command=self.draw).grid(row=5, column=2)
+        Button(self, text='Refresh', command=self.draw_listbox).grid(row=5, column=2)
         Button(self, text='Cancel', command=self.destroy).grid(row=5, column=3)
         submit = Button(self, text='Export', command=self.export)
         submit.grid(row=5, column=4)
@@ -66,6 +64,17 @@ class CSVExporterBase(Toplevel):
         if not len(self.data):
             messagebox.showerror('No data', 'No data to export!')
             self.destroy()
+
+    def draw_listbox(self):
+        # Store old selection and clear list
+        old_selection = [int(x) for x in self.list.curselection()]
+        self.list.delete(0, END)
+        self.data = self.__load_data()
+        for i, d in enumerate(self.data):
+            self.list.insert(END, self.row_format.format(id=i+1, data=d))
+            if i in old_selection or i >= len(old_selection):
+                # This row was selected before or is new
+                self.list.selection_set(i, i)
 
     def keypress(self, event):
         """ Handles keyboard input to window """
