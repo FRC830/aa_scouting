@@ -21,6 +21,7 @@ except ImportError:
     import tkinter.filedialog as filedialog
 
 from lib.csvexport import CSVExporterBase
+from lib.version import VERSION
 
 # Form fields, in order
 form_fields = [
