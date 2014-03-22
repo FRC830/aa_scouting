@@ -2,6 +2,9 @@
 data/*
 !data/.ignore_this_file
 
+# Ignore releases folder, which I use to put together releases
+releases/
+
 # Python things
 *.py[cod]
 

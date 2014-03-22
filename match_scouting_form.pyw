@@ -5,6 +5,7 @@ import math
 import os
 import pickle
 import random
+import re
 import sys
 import zlib
 
@@ -100,6 +101,9 @@ class MenuBar(Menu):
         fileMenu.add_command(label='CSV export', underline=1,
             command=lambda: CSVExporter(root))
         fileMenu.add_separator()
+        fileMenu.add_command(label="About", underline=1,
+                             command=AboutWindow.show)
+        fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
 
 #values:
@@ -112,6 +116,7 @@ class Application(Frame):
     def __init__(self, master):
         """initialize the window"""
         Frame.__init__(self, master)
+        self.logo = PhotoImage(file = "lib/logo.GIF")
         self.form = Form()
         self.grid()
         self.create_fields()
@@ -265,9 +270,8 @@ class Application(Frame):
                              background='#ffff00')
         self.form.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
         #picture
-        logo = PhotoImage(file = "lib/logo.GIF")
-        picture = Label(self, image=logo)
-        picture.image = logo
+        picture = Label(self, image=self.logo)
+        picture.image = self.logo
         picture.grid(row=20, column=0)
         #submit button
         Button(self, text="Submit Form", command = self.check_submit) \
@@ -415,11 +419,44 @@ class CSVExporter(CSVExporterBase):
     def load_data(self):
         return app.load_data_file()
 
+class AboutWindow(Toplevel):
+    # Keep track of window
+    current_window = None
+    def __init__(self, master):
+        Toplevel.__init__(self, master)
+        self.title('About')
+        self.grid()
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(4, weight=1)
+        self.draw()
+        position = tuple(int(x) + 20 for x in master.geometry().split('+', 1)[1].split('+'))
+        self.geometry('+%i+%i' % position)
+        self.minsize(200, 0)
+
+    def draw(self):
+        img = Label(self, image=app.logo)
+        img.image = img
+        img.grid(row=1, column=1, columnspan=4)
+        Label(self, text='Python version:').grid(row=2, column=2, sticky=E)
+        Label(self, text=sys.version.split(' ')[0]).grid(row=2, column=3, sticky=W)
+        Label(self, text='Tk version:').grid(row=3, column=2, sticky=E)
+        Label(self, text='%i' % TkVersion).grid(row=3, column=3, sticky=W)
+        Label(self, text='Scouting form version:').grid(row=4, column=2, sticky=E)
+        Label(self, text=VERSION).grid(row=4, column=3, sticky=W)
+
+    @staticmethod
+    def show():
+        if AboutWindow.current_window:
+            AboutWindow.current_window.destroy()
+        AboutWindow.current_window = AboutWindow(root)
+
 if __name__ == '__main__':
     initialize()
     root = Tk()
     root.title("Aerial Assist Match Scouting Form")
     app = Application(root)
+    about_window = AboutWindow(root)
+    about_window.withdraw()
     menu = MenuBar(root)
     root.config(menu=menu)
     root.mainloop()
