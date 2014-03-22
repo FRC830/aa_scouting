@@ -264,6 +264,11 @@ class Application(Frame):
         self.form.comments = Text(self, width = 40, height=5, wrap=WORD,
                              background='#ffff00')
         self.form.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
+        #picture
+        logo = PhotoImage(file = "lib/logo.GIF")
+        picture = Label(self, image=logo)
+        picture.image = logo
+        picture.grid(row=20, column=0)
         #submit button
         Button(self, text="Submit Form", command = self.check_submit) \
             .grid(row=20, column=4, sticky=E)
