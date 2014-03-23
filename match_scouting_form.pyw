@@ -418,6 +418,8 @@ class CSVExporter(CSVExporterBase):
     row_format = '#{id}: Match {data[match_num]}, team {data[team_num]}'
     def load_data(self):
         return app.load_data_file()
+    def save_data(self, data):
+        return app.save_data_file(data)
 
 class AboutWindow(Toplevel):
     # Keep track of window

@@ -61,9 +61,13 @@ class CSVExporterBase(Toplevel):
         submit = Button(self, text='Export', command=self.export)
         submit.grid(row=5, column=4)
         submit.config(default='active')
-        if not len(self.data):
-            messagebox.showerror('No data', 'No data to export!')
+        def nodata(*_):
+            # Displays "no data" error
             self.destroy()
+            messagebox.showerror('No data', 'No data to export!'),
+        if not len(self.data):
+            # Display error after idle, to make sure dialog displays correctly
+            self.after_idle(nodata)
 
     def draw_listbox(self):
         # Store old selection and clear list
@@ -133,9 +137,9 @@ class CSVExporterBase(Toplevel):
         else:
             raise NotImplementedError('load_data should be implemented in a subclass')
 
-    def __save_data(self):
+    def __save_data(self, data):
         if hasattr(self, 'save_data') and hasattr(self.save_data, '__call__'):
-            return self.save_data()
+            return self.save_data(data)
         else:
             raise NotImplementedError('save_data should be implemented in a subclass')
 
