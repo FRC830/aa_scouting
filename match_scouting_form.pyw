@@ -423,6 +423,10 @@ class CSVExporter(CSVExporterBase):
 
 class AboutWindow(Toplevel):
     # Keep track of window
+    urls = {
+        'wiki': 'https://github.com/cbott/830_scouting_forms/wiki/Team-830%27s-2014-match-scouting-form',
+        'bugreport': 'https://github.com/cbott/830_scouting_forms/wiki/Reporting-a-bug',
+    }
     current_window = None
     def __init__(self, master):
         Toplevel.__init__(self, master)
@@ -445,6 +449,20 @@ class AboutWindow(Toplevel):
         Label(self, text='%i' % TkVersion).grid(row=3, column=3, sticky=W)
         Label(self, text='Scouting form version:').grid(row=4, column=2, sticky=E)
         Label(self, text=VERSION).grid(row=4, column=3, sticky=W)
+        Button(self, text='More info', command=lambda:self.open('wiki')) \
+            .grid(row=10, column=2, columnspan=2)
+        Button(self, command=lambda:self.open('bugreport'),
+            text='Report a problem').grid(row=11, column=2, columnspan=2)
+
+    def open(self, url):
+        if url in self.urls:
+            url = self.urls[url]
+        try:
+            import webbrowser
+            webbrowser.open(url)
+        except ImportError:
+            messagebox.showerror('Module not found',
+                                 'Could not open a web browser')
 
     @staticmethod
     def show():

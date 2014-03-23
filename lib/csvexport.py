@@ -61,7 +61,7 @@ class CSVExporterBase(Toplevel):
         submit = Button(self, text='Export', command=self.export)
         submit.grid(row=5, column=4)
         submit.config(default='active')
-        def nodata(*_):
+        def nodata():
             # Displays "no data" error
             self.destroy()
             messagebox.showerror('No data', 'No data to export!'),
