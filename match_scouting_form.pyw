@@ -310,6 +310,9 @@ class Application(Frame):
                 valid = False
         if valid:
             self.submit()
+        else:
+            messagebox.showerror("Can't submit form",
+                'You need to fill in all fields before submitting.')
     def submit(self):
         """Read values from scouting form and save to a file"""
         try:
@@ -321,7 +324,7 @@ class Application(Frame):
             #clear entries
             self.clear_entries()
         except Exception as e:
-            messagebox.showinfo('Internal error', e)
+            messagebox.showerror('Internal error', e)
 
     def clear_entries(self):
         """erase entries and give user a clean slate - Good as new!"""
@@ -390,6 +393,7 @@ class Application(Frame):
                     sys.exit()
                 # Overwrite data file (only if confirmed)
                 self.save_data_file([])
+                return []
             else:
                 raise IOError('Unable to load data file')
         return False

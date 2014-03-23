@@ -92,10 +92,10 @@ class CSVExporterBase(Toplevel):
         # Generate data & check
         rows = [self.data[int(x)] for x in self.list.curselection()]
         if not len(rows):
-            messagebox.showinfo("Error", "No data to export")
+            messagebox.showerror("Error", "No data to export")
             return
         # Dialog should prevent overwriting an existing file accidentally
-        filename = filedialog.asksaveasfilename(defaultextension='csv')
+        filename = filedialog.asksaveasfilename(defaultextension='.csv')
         if not filename:
             return
         # Column names, used to sort data (dictionaries aren't sorted)
