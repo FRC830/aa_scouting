@@ -7,17 +7,20 @@ import pickle
 import random
 import re
 import sys
+import traceback
 import zlib
 
 PYTHON = int(sys.version.split('.')[0])  # either 2 or 3
 try:
     # Python 2
     from Tkinter import *
+    import Tkinter as tkinter
     import tkMessageBox as messagebox
     import tkFileDialog as filedialog
 except ImportError:
     # Python 3
     from tkinter import *
+    import tkinter
     import tkinter.messagebox as messagebox
     import tkinter.filedialog as filedialog
 
@@ -473,6 +476,68 @@ class AboutWindow(Toplevel):
         if AboutWindow.current_window:
             AboutWindow.current_window.destroy()
         AboutWindow.current_window = AboutWindow(root)
+
+class ExceptionHandler:
+    """ Handles uncaught exceptions in Tkinter callbacks """
+    def __init__(self, func, subst, widget):
+        self.func, self.subst, self.widget = func, subst, widget
+
+    def __call__(self, *args):
+        try:
+            if self.subst:
+                args = apply(self.subst, args)
+            return apply(self.func, args)
+        except Exception:
+            try:
+                ExceptionReporter(root, traceback.format_exc())
+            except Exception:
+                traceback.print_exc()
+
+class ExceptionReporter(Toplevel):
+    def __init__(self, master, tb):
+        Toplevel.__init__(self, master)
+        self.tb = tb
+        self.title('Internal error')
+        self.grid()
+        self.columnconfigure(1, weight=1)
+        self.draw()
+        self.minsize(200, 0)
+
+    def draw(self):
+        Label(self, text='An internal error has occurred.').grid(row=1, column=1, sticky=W)
+        text = self.text = Text(self, width=80, height=20, wrap=WORD)
+        text.grid(row=2, column=1, columnspan=2)
+        text.insert('0.0', self.tb)
+        # Disable widget, but make clicking set focus so copying works
+        text.config(state=DISABLED)
+        text.bind('<1>', lambda event: text.focus_set())
+        # Auto-focus
+        text.focus_set()
+        text.tag_add('sel', '0.0', END)
+        Label(self, text='Copy this text and submit a bug report, if necessary')\
+            .grid(row=3, column=1, columnspan=2, sticky=W)
+        self.copy_button = Button(self, text='Copy to clipboard',
+                                  command=self.copy, width=20)
+        self.copy_button.grid(row=4, column=2, sticky=W)
+        self.copy_button.bind('<Leave>',
+            lambda event: self.copy_button.config(text='Copy to clipboard'))
+        Button(self, text="Don't submit", command=self.destroy) \
+            .grid(row=5, column=1, sticky=W)
+        Button(self, text='Submit report',
+               command=lambda: AboutWindow.open('bugreport')) \
+            .grid(row=5, column=2, sticky=E)
+
+    def copy(self):
+        """ Copies text to clipboard """
+        try:
+            self.text.tag_add('sel', '0.0', END)
+            self.text.clipboard_clear()
+            self.text.clipboard_append(self.text.get('sel.first', 'sel.last'))
+            self.copy_button.config(text='Copied!')
+        except Exception:
+            self.copy_button.config(text='Failed')
+
+tkinter.CallWrapper = ExceptionHandler
 
 if __name__ == '__main__':
     initialize()

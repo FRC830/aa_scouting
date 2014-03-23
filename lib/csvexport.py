@@ -72,11 +72,12 @@ class CSVExporterBase(Toplevel):
     def draw_listbox(self):
         # Store old selection and clear list
         old_selection = [int(x) for x in self.list.curselection()]
+        old_len = self.list.size()
         self.list.delete(0, END)
         self.data = self.__load_data()
         for i, d in enumerate(self.data):
             self.list.insert(END, self.row_format.format(id=i+1, data=d))
-            if i in old_selection or i >= len(old_selection):
+            if i in old_selection or i >= old_len:
                 # This row was selected before or is new
                 self.list.selection_set(i, i)
 
