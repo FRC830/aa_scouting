@@ -112,7 +112,7 @@ class MenuBar(Menu):
         confirm = messagebox.askokcancel('Question',
                     'Are you sure you would like to quit?')
         if confirm:
-            sys.exit()
+            root.quit()
         
 
 #values:
@@ -390,7 +390,7 @@ class Application(Frame):
             if silent:
                 raise  # original exception
             messagebox.showerror('Error', 'Could not load data file: %s' % e)
-            sys.exit()
+            root.quit()
         except Exception as e:
             print(e)
             if not silent:
@@ -399,7 +399,7 @@ class Application(Frame):
                     'The data file is corrupt. Press OK to clear the file '
                     'or cancel to quit.')
                 if not result:
-                    sys.exit()
+                    root.quit()
                 # Overwrite data file (only if confirmed)
                 self.save_data_file([])
                 return []
@@ -439,6 +439,7 @@ class AboutWindow(Toplevel):
     urls = {
         'wiki': 'https://github.com/cbott/830_scouting_forms/wiki/Team-830%27s-2014-match-scouting-form',
         'bugreport': 'https://github.com/cbott/830_scouting_forms/wiki/Reporting-a-bug',
+        'newissue': 'https://github.com/cbott/830_scouting_forms/issues/new'
     }
     current_window = None
     def __init__(self, master):
@@ -502,12 +503,13 @@ class ExceptionHandler:
 class ExceptionReporter(Toplevel):
     def __init__(self, master, tb):
         Toplevel.__init__(self, master)
-        self.tb = tb
+        self.tb = tb.replace(os.getcwd(), 'DIR')
         self.title('Internal error')
         self.grid()
         self.columnconfigure(1, weight=1)
         self.draw()
         self.minsize(200, 0)
+        self.after_idle(self.lift)
 
     def draw(self):
         Label(self, text='An internal error has occurred.').grid(row=1, column=1, sticky=W)
@@ -530,7 +532,7 @@ class ExceptionReporter(Toplevel):
         Button(self, text="Don't submit", command=self.destroy) \
             .grid(row=5, column=1, sticky=W)
         Button(self, text='Submit report',
-               command=lambda: AboutWindow.open('bugreport')) \
+               command=lambda: about_window.open('newissue')) \
             .grid(row=5, column=2, sticky=E)
 
     def copy(self):
@@ -538,7 +540,9 @@ class ExceptionReporter(Toplevel):
         try:
             self.text.tag_add('sel', '0.0', END)
             self.text.clipboard_clear()
+            self.text.clipboard_append('```\n')
             self.text.clipboard_append(self.text.get('sel.first', 'sel.last'))
+            self.text.clipboard_append('\n```')
             self.copy_button.config(text='Copied!')
         except Exception:
             self.copy_button.config(text='Failed')
