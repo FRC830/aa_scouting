@@ -495,8 +495,8 @@ class ExceptionHandler:
     def __call__(self, *args):
         try:
             if self.subst:
-                args = apply(self.subst, args)
-            return apply(self.func, args)
+                args = self.subst(*args)
+            return self.func(*args)
         except Exception:
             try:
                 ExceptionReporter(root, traceback.format_exc())
@@ -550,7 +550,7 @@ class ExceptionReporter(Toplevel):
         except Exception:
             self.copy_button.config(text='Failed')
 
-#tkinter.CallWrapper = ExceptionHandler
+tkinter.CallWrapper = ExceptionHandler
 
 def exit_form():
     root.destroy()
