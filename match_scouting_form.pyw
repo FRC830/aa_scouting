@@ -110,8 +110,8 @@ class MenuBar(Menu):
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
     def quit(self):
         confirm = messagebox.askokcancel("We have to ask. You're that stupid.",
-                    'Are you sure you would like to exit?')
-        if confirm:
+                    'Are you sure you would like to not exit')
+        if not confirm:
             exit_form()
 
 
