@@ -122,6 +122,10 @@ class CSVExporterBase(Toplevel):
                 row_values = [(r[col_names[i]] if col_names[i] in r else '')
                     for i in range(len(col_names))]
                 writer.writerow(row_values)
+        if self.save_clear_data.get():
+            # Remove exported rows
+            keep_rows = [r for r in self.data if r not in rows]
+            self.__save_data(keep_rows)
         # Close when done
         self.destroy()
 
