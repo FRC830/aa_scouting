@@ -109,9 +109,9 @@ class MenuBar(Menu):
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
     def quit(self):
-        confirm = messagebox.askokcancel("We have to ask. You're that stupid.",
-                    'Are you sure you would like to not exit')
-        if not confirm:
+        confirm = messagebox.askokcancel("We have to ask.",
+                    'Are you sure you would like to exit?')
+        if confirm:
             exit_form()
 
 
@@ -447,6 +447,7 @@ class AboutWindow(Toplevel):
         position = tuple(int(x) + 20 for x in master.geometry().split('+', 1)[1].split('+'))
         self.geometry('+%i+%i' % position)
         self.minsize(200, 0)
+        self.bind('<Key>', self.keypress)
 
     def draw(self):
         img = Label(self, image=app.logo)
@@ -462,6 +463,12 @@ class AboutWindow(Toplevel):
             .grid(row=10, column=2, columnspan=2)
         Button(self, command=lambda:self.open('bugreport'),
             text='Report a problem').grid(row=11, column=2, columnspan=2)
+
+    def keypress(self, event):
+        """ Handle keyboard input """
+        if event.keysym == 'Escape':
+            self.destroy()
+            AboutWindow.current_window = None
 
     def open(self, url):
         if url in self.urls:
@@ -498,7 +505,7 @@ class ExceptionHandler:
 class ExceptionReporter(Toplevel):
     def __init__(self, master, tb):
         Toplevel.__init__(self, master)
-        self.tb = tb.replace(os.getcwd(), 'DIR')
+        self.tb = tb.replace(os.getcwd(), '.')
         self.title('Internal error')
         self.grid()
         self.columnconfigure(1, weight=1)
@@ -548,13 +555,12 @@ def exit_form():
     root.destroy()
     sys.exit()
 
-
 if __name__ == '__main__':
     initialize()
     root = Tk()
     root.title("Aerial Assist Match Scouting Form")
     app = Application(root)
-    about_window = AboutWindow(root)
+    about_window = AboutWindow.current_window = AboutWindow(root)
     about_window.withdraw()
     menu = MenuBar(root)
     root.config(menu=menu)
