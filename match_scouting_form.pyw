@@ -109,7 +109,7 @@ class MenuBar(Menu):
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
     def quit(self):
-        confirm = messagebox.askokcancel("We have to ask.",
+        confirm = messagebox.askokcancel("Can I ask you something?",
                     'Are you sure you would like to exit?')
         if confirm:
             exit_form()
@@ -463,6 +463,7 @@ class AboutWindow(Toplevel):
             .grid(row=10, column=2, columnspan=2)
         Button(self, command=lambda:self.open('bugreport'),
             text='Report a problem').grid(row=11, column=2, columnspan=2)
+        Label(self, text="By Colin Bott and Alan Stahl").grid(row=12, column=2, columnspan=2)
 
     def keypress(self, event):
         """ Handle keyboard input """
@@ -549,7 +550,7 @@ class ExceptionReporter(Toplevel):
         except Exception:
             self.copy_button.config(text='Failed')
 
-tkinter.CallWrapper = ExceptionHandler
+#tkinter.CallWrapper = ExceptionHandler
 
 def exit_form():
     root.destroy()
