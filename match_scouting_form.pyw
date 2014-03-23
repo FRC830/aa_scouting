@@ -109,11 +109,11 @@ class MenuBar(Menu):
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
     def quit(self):
-        confirm = messagebox.askokcancel('Question',
-                    'Are you sure you would like to quit?')
+        confirm = messagebox.askokcancel("We have to ask. You're that stupid.",
+                    'Are you sure you would like to exit?')
         if confirm:
-            root.quit()
-        
+            exit_form()
+
 
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
@@ -132,11 +132,6 @@ class Application(Frame):
         self.clear_entries()
         self.filename = os.path.join('data', "scouting_data")
         self.after(100, self.check_data_file)
-        self.val_list=[self.match_num, self.team_num, self.auton_ball_num,
-                       self.auton_high, self.auton_low, self.teleop_high,
-                       self.teleop_high_miss, self.teleop_low, self.teleop_low_speed,
-                       self.ranged_pass, self.truss_pass, self.fouls,
-                       self.tech_fouls, self.defense, self.match_result]
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
@@ -390,7 +385,7 @@ class Application(Frame):
             if silent:
                 raise  # original exception
             messagebox.showerror('Error', 'Could not load data file: %s' % e)
-            root.quit()
+            exit_form()
         except Exception as e:
             print(e)
             if not silent:
@@ -399,7 +394,7 @@ class Application(Frame):
                     'The data file is corrupt. Press OK to clear the file '
                     'or cancel to quit.')
                 if not result:
-                    root.quit()
+                    exit_form()
                 # Overwrite data file (only if confirmed)
                 self.save_data_file([])
                 return []
@@ -548,6 +543,11 @@ class ExceptionReporter(Toplevel):
             self.copy_button.config(text='Failed')
 
 tkinter.CallWrapper = ExceptionHandler
+
+def exit_form():
+    root.destroy()
+    sys.exit()
+
 
 if __name__ == '__main__':
     initialize()
