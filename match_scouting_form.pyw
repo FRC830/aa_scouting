@@ -108,6 +108,12 @@ class MenuBar(Menu):
                              command=AboutWindow.show)
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
+    def quit(self):
+        confirm = messagebox.askokcancel('Question',
+                    'Are you sure you would like to quit?')
+        if confirm:
+            sys.exit()
+        
 
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
