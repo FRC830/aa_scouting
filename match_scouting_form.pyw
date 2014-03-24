@@ -26,6 +26,8 @@ except ImportError:
 
 from lib.csvexport import CSVExporterBase
 from lib.version import VERSION
+import lib.validation as validation
+import lib.debug as debug
 
 # Form fields, in order
 form_fields = [
@@ -109,8 +111,7 @@ class MenuBar(Menu):
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
     def quit(self):
-        confirm = messagebox.askokcancel("Can I ask you something?",
-                    'Are you sure you would like to exit?')
+        confirm = messagebox.askokcancel('', 'Are you sure you want to exit?')
         if confirm:
             exit_form()
 
@@ -134,6 +135,7 @@ class Application(Frame):
         self.after(100, self.check_data_file)
     def create_fields(self):
         """create input boxes and fields on the form"""
+        valid_int = validation.IntegerEntryValidator()
         #title
         Label(self, text = "FRC team 830"
               ).grid(row=0, column=0, columnspan=2, sticky=W)
@@ -141,10 +143,12 @@ class Application(Frame):
         Label(self, text="Match #:").grid(row=1, column=0, sticky=W)
         self.form.match_num = Entry(self)
         self.form.match_num.grid(row=1,column=1,sticky=W)
+        valid_int.bind_to(self.form.match_num)
         #team_num input field
         Label(self, text="Team #:").grid(row=1, column=2)
         self.form.team_num = Entry(self)
         self.form.team_num.grid(row=1,column=3,sticky=W, columnspan=3)
+        valid_int.bind_to(self.form.team_num)
         #auton_ball_num input field
         Label(self, text="Auton balls posessed:").grid(row=2, column=0, sticky=W)
         self.form.auton_ball_num = Entry(self)
@@ -463,7 +467,6 @@ class AboutWindow(Toplevel):
             .grid(row=10, column=2, columnspan=2)
         Button(self, command=lambda:self.open('bugreport'),
             text='Report a problem').grid(row=11, column=2, columnspan=2)
-        Label(self, text="By Colin Bott and Alan Stahl").grid(row=12, column=2, columnspan=2)
 
     def keypress(self, event):
         """ Handle keyboard input """
@@ -564,5 +567,14 @@ if __name__ == '__main__':
     about_window = AboutWindow.current_window = AboutWindow(root)
     about_window.withdraw()
     menu = MenuBar(root)
+    console = None
+    if '--debug' in sys.argv:
+        if sys.stdout.isatty() and sys.stdin.isatty():
+            console = debug.Console(globals())
+            console.add_to_menubar(menu)
+            debug.register_root(root)
+        else:
+            messagebox.showerror('Error',
+                                 'Debug mode needs to be run from a terminal')
     root.config(menu=menu)
     root.mainloop()

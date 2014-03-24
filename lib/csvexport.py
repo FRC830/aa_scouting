@@ -113,9 +113,8 @@ class CSVExporterBase(Toplevel):
         if PYTHON == 3:
             # Use utf-8 with Python 3
             opts['encoding'] = 'utf-8'
-            opts['newline'] = '\n'
         with open(filename, 'w', **opts) as csvfile:
-            writer = csv.writer(csvfile)
+            writer = csv.writer(csvfile, lineterminator='\n')
             # Column headers
             writer.writerow(self.process_column_names(col_names))
             for r in rows:
