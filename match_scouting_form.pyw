@@ -305,10 +305,17 @@ class Application(Frame):
                 self.radio_buttons.append(field)
     def check_submit(self):
         """checks if required fields are filled, if so it submits"""
+        alan = "white"
+        easter = self.form.comments.get("0.0", END)
+        egg = ["red","blue","black","white"]
+        for c in egg:
+            if c in easter:
+                alan = c
+                app.configure(background=alan)
         valid = True
         for field in self.entries:
             # default background color
-            field.config(background='white')
+            field.config(background=alan)
             if not field.get():
                 #a field has not been completed
                 field.config(background='#ffaaaa')
