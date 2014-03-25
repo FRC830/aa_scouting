@@ -1,7 +1,8 @@
 830_scouting_forms
 ==================
 
-Scouting forms for FRC team 830 - Compatible with Python 2 and 3 (usually), uses Tkinter
+Scouting form for the 2014 FIRST FRC game - Aerial Assist
+Created by FRC team 830 - Compatible with Python 2 and 3, uses Tkinter
 
 Installation instructions
 -------------------------
@@ -17,3 +18,5 @@ Installation instructions
 3. Run the program:
     * Windows: Open match_scouting_form.pyw
     * Linux/OS X: Run `python match_scouting_form.pyw` from the command line (from this folder). You can probably get your system to automatically open .pyw files with Python ("Python Launcher" on OS X does this)
+
+For more information see the wiki (tab to the right)

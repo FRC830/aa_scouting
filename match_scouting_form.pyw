@@ -147,7 +147,7 @@ class Application(Frame):
         #team_num input field
         Label(self, text="Team #:").grid(row=1, column=2)
         self.form.team_num = Entry(self)
-        self.form.team_num.grid(row=1,column=3,sticky=W, columnspan=3)
+        self.form.team_num.grid(row=1,column=3,sticky=W, columnspan=1)
         valid_int.bind_to(self.form.team_num)
         #auton_ball_num input field
         Label(self, text="Auton balls posessed:").grid(row=2, column=0, sticky=W)
@@ -180,7 +180,7 @@ class Application(Frame):
         #teleop_high_miss
         Label(self, text="High Goals Missed:").grid(row=4, column=2, sticky=W)
         self.form.teleop_high_miss = Entry(self)
-        self.form.teleop_high_miss.grid(row=4,column=3,sticky=W, columnspan=3)
+        self.form.teleop_high_miss.grid(row=4,column=3,sticky=W, columnspan=1)
         #teleop_low
         Label(self, text="Teleop Low Goals:").grid(row=5, column=0, sticky=W)
         self.form.teleop_low = Entry(self)
@@ -205,7 +205,7 @@ class Application(Frame):
         Label(self, text = "Consistent").grid(row=8, column=3, sticky=S)
         Label(self, text = "Over Truss").grid(row=9, column=0, sticky=W)
         Label(self, text = "Ranged Pass").grid(row=10, column=0, sticky=W)
-        Label(self, text = " ").grid(row=11, column=0)
+        Label(self, text = "").grid(row=11, column=0)
         pass_options = ["N/A", "Inconsistent", "Consistent"]
         #ranged_pass
         self.form.ranged_pass = StringVar()
@@ -239,7 +239,7 @@ class Application(Frame):
         Label(self, text="Technical Fouls:").grid(row=12, column=2, sticky=E)
         self.form.tech_fouls=Entry(self)
         self.form.tech_fouls.grid(row=12, column=3, sticky=W)
-        Label(self, text = " ").grid(row=13, column=0)
+        Label(self, text = "").grid(row=13, column=0)
         #defense
         Label(self, text="Defense:").grid(row=14, column=0, sticky=E)
         col=1
@@ -271,7 +271,7 @@ class Application(Frame):
             Radiobutton(self, variable=self.form.match_result, value=val, text=val
                         ).grid(row=row, column=3, sticky=W)
             row+=1
-        Label(self, text=" ").grid(row=18, column=0)
+        Label(self, text="").grid(row=18, column=0)
         #comments
         Label(self, text="Comments:").grid(row=19, column=0)
         self.form.comments = Text(self, width = 40, height=5, wrap=WORD,
