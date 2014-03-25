@@ -306,8 +306,14 @@ class Application(Frame):
     def check_submit(self):
         """checks if required fields are filled, if so it submits"""
         alan = "white"
+        rainbow=False
         easter = self.form.comments.get("0.0", END)
-        egg = ["red","blue","black","white"]
+        egg = ["red","blue","black",
+               "white","yellow","orange",
+               "green","purple"]
+        if "rainbow" in easter:
+            rainbow=True
+            app.configure(background=random.choice(egg))
         for c in egg:
             if c in easter:
                 alan = c
@@ -316,6 +322,8 @@ class Application(Frame):
         for field in self.entries:
             # default background color
             field.config(background=alan)
+            if rainbow:
+                field.config(background=random.choice(egg))
             if not field.get():
                 #a field has not been completed
                 field.config(background='#ffaaaa')
