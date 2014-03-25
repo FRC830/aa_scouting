@@ -25,7 +25,7 @@ class Console:
             self.console.interact('Console started.')
         except SystemExit as e:
             print('Console closed.')
-            if e.args[0]:
+            if len(e.args) and e.args[0]:
                 # Make exit(1) exit program
                 raise
 
@@ -34,6 +34,8 @@ class Console:
         raise SystemExit(force)
 
 def register_root(root):
+    print('Application started.')
+    print('Python: %s\nTk: %s' % (sys.version.split(' ')[0], TkVersion))
     def destroy_handler():
         print('Application quit.')
         root.destroy()

@@ -11,7 +11,7 @@ class EntryValidator(Validator):
 
     def bind_to(self, *fields):
         for f in fields:
-            f.bind('<Key>', self.keypress)
+            f.bind('<Key>', self.keypress, '+')
             self.fields.append(f)
 
     def keypress(self, event):
@@ -32,4 +32,3 @@ class IntegerEntryValidator(EntryValidator):
             return True
         except ValueError:
             return False
-

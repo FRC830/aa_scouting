@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """ Team 830 scouting forms """
+
+from __future__ import division, print_function
+
 import csv
 import math
 import os
@@ -60,6 +63,38 @@ def initialize():
     if os.path.exists(filename):
         os.rename(filename, os.path.join('data', 'scouting_data'))
 
+class IntegerEntry(Entry):
+    def __init__(self, *args, **kwargs):
+        self.max = kwargs.get('max', float('inf'))
+        self.min = kwargs.get('min', float('-inf'))
+        self.default = kwargs.get('default', 0)
+        for v in ('max', 'min', 'default'):
+            if v in kwargs:
+                kwargs.pop(v)
+        Entry.__init__(self, *args, **kwargs)
+        self.validator = validation.IntegerEntryValidator(self)
+        self.bind('<Key>', self.key_handler)
+
+    def key_handler(self, event):
+        if event.keysym in ('Up', 'Down'):
+            self.increase(1 if event.keysym == 'Up' else -1)
+            return 'break'
+        elif event.keysym in ('Right', 'Left'):
+            # Allow default
+            pass
+        else:
+            return self.validator.keypress(event)
+
+    def increase(self, value):
+        try:
+            val = int(self.get() or self.default)
+        except ValueError:
+            val = self.default
+        val += value
+        val = max(self.min, min(self.max, val))
+        self.delete('0', END)
+        self.insert('0', str(val))
+
 class Form(object):
     """ Form data handler """
     # These properties are reserved for this class
@@ -115,7 +150,6 @@ class MenuBar(Menu):
         if confirm:
             exit_form()
 
-
 #values:
 #match_num, team_num, auton_ball_num, auton_high, auton_low, teleop_high
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
@@ -135,23 +169,20 @@ class Application(Frame):
         self.after(100, self.check_data_file)
     def create_fields(self):
         """create input boxes and fields on the form"""
-        valid_int = validation.IntegerEntryValidator()
         #title
         Label(self, text = "FRC team 830"
               ).grid(row=0, column=0, columnspan=2, sticky=W)
         #match_num input field
         Label(self, text="Match #:").grid(row=1, column=0, sticky=W)
-        self.form.match_num = Entry(self)
+        self.form.match_num = IntegerEntry(self, min=0)
         self.form.match_num.grid(row=1,column=1,sticky=W)
-        valid_int.bind_to(self.form.match_num)
         #team_num input field
         Label(self, text="Team #:").grid(row=1, column=2)
-        self.form.team_num = Entry(self)
+        self.form.team_num = IntegerEntry(self, min=0)
         self.form.team_num.grid(row=1,column=3,sticky=W, columnspan=1)
-        valid_int.bind_to(self.form.team_num)
         #auton_ball_num input field
         Label(self, text="Auton balls posessed:").grid(row=2, column=0, sticky=W)
-        self.form.auton_ball_num = Entry(self)
+        self.form.auton_ball_num = IntegerEntry(self, min=0)
         self.form.auton_ball_num.grid(row=2,column=1,sticky=W)
         #auton_high
         Label(self, text="Auton High Goal").grid(row=2, column=2)
@@ -175,15 +206,15 @@ class Application(Frame):
             col+=1
         #teleop_high
         Label(self, text="Teleop High Goals:").grid(row=4, column=0, sticky=W)
-        self.form.teleop_high = Entry(self)
+        self.form.teleop_high = IntegerEntry(self, min=0)
         self.form.teleop_high.grid(row=4,column=1,sticky=W)
         #teleop_high_miss
         Label(self, text="High Goals Missed:").grid(row=4, column=2, sticky=W)
-        self.form.teleop_high_miss = Entry(self)
+        self.form.teleop_high_miss = IntegerEntry(self, min=0)
         self.form.teleop_high_miss.grid(row=4,column=3,sticky=W, columnspan=1)
         #teleop_low
         Label(self, text="Teleop Low Goals:").grid(row=5, column=0, sticky=W)
-        self.form.teleop_low = Entry(self)
+        self.form.teleop_low = IntegerEntry(self, min=0)
         self.form.teleop_low.grid(row=5,column=1,sticky=W)
         #teleop_low_speed
         Label(self, text="Teleop Low Goal Speed:").grid(row=6 , column=0,
@@ -233,11 +264,11 @@ class Application(Frame):
             col+=1
         #fouls
         Label(self, text="Fouls:").grid(row=12, column=0, sticky=E)
-        self.form.fouls=Entry(self)
+        self.form.fouls=IntegerEntry(self, min=0)
         self.form.fouls.grid(row=12, column=1, sticky=W)
         #tech_fouls
         Label(self, text="Technical Fouls:").grid(row=12, column=2, sticky=E)
-        self.form.tech_fouls=Entry(self)
+        self.form.tech_fouls=IntegerEntry(self, min=0)
         self.form.tech_fouls.grid(row=12, column=3, sticky=W)
         Label(self, text = "").grid(row=13, column=0)
         #defense
@@ -305,7 +336,7 @@ class Application(Frame):
                 self.radio_buttons.append(field)
     def check_submit(self):
         """checks if required fields are filled, if so it submits"""
-        alan = "white"
+        color = "white"
         rainbow=False
         easter = self.form.comments.get("0.0", END)
         egg = ["red","blue","black",
@@ -316,12 +347,12 @@ class Application(Frame):
             app.configure(background=random.choice(egg))
         for c in egg:
             if c in easter:
-                alan = c
-                app.configure(background=alan)
+                color = c
+                app.configure(background=color)
         valid = True
         for field in self.entries:
             # default background color
-            field.config(background=alan)
+            field.config(background=color)
             if rainbow:
                 field.config(background=random.choice(egg))
             if not field.get():
@@ -475,7 +506,7 @@ class AboutWindow(Toplevel):
         Label(self, text='Python version:').grid(row=2, column=2, sticky=E)
         Label(self, text=sys.version.split(' ')[0]).grid(row=2, column=3, sticky=W)
         Label(self, text='Tk version:').grid(row=3, column=2, sticky=E)
-        Label(self, text='%i' % TkVersion).grid(row=3, column=3, sticky=W)
+        Label(self, text='%s' % TkVersion).grid(row=3, column=3, sticky=W)
         Label(self, text='Scouting form version:').grid(row=4, column=2, sticky=E)
         Label(self, text=VERSION).grid(row=4, column=3, sticky=W)
         Button(self, text='More info', command=lambda:self.open('wiki')) \
@@ -589,7 +620,9 @@ if __name__ == '__main__':
             console.add_to_menubar(menu)
             debug.register_root(root)
         else:
-            messagebox.showerror('Error',
-                                 'Debug mode needs to be run from a terminal')
+            root.after_idle(lambda:
+                messagebox.showerror('Error',
+                    'Debug mode needs to be run from a terminal')
+            )
     root.config(menu=menu)
     root.mainloop()
