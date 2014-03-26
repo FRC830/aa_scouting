@@ -7,6 +7,7 @@ import csv
 import math
 import os
 import pickle
+import platform
 import random
 import re
 import sys
@@ -65,6 +66,18 @@ def initialize():
     filename = os.path.join('data', 'scouting_data.txt')
     if os.path.exists(filename):
         os.rename(filename, os.path.join('data', 'scouting_data'))
+
+def system_check():
+    py_version = float('.'.join(sys.version.split('.')[:2]))
+    if py_version >= 3 and py_version <= 3.2:
+        messagebox.showwarning('Untested',
+            'Python %f is not tested. Use at your own risk!' % py_version)
+    if py_version == 2.6:
+        messagebox.showwarning('Warning',
+            'Python 2.6 is not tested as often as 2.7. Upgrade if you experience bugs.')
+    if sys.platform == 'darwin' and platform.mac_ver()[0][:4] == '10.6':
+        messagebox.showwarning('Warning',
+            'If you experience interface problems, you may need to upgrade Tk.')
 
 class IntegerEntry(Entry):
     def __init__(self, *args, **kwargs):
@@ -137,15 +150,16 @@ class Form(object):
         return d
 
 class MenuBar(Menu):
-    def __init__(self,parent):
-        Menu.__init__(self,parent)
+    def __init__(self, parent):
+        Menu.__init__(self, parent)
+        parent['menu'] = self
         fileMenu = Menu(self, tearoff=False)
         self.add_cascade(label="File", underline=0, menu=fileMenu)
         fileMenu.add_command(label='CSV export', underline=1,
             command=lambda: CSVExporter(root))
         fileMenu.add_separator()
         fileMenu.add_command(label="About", underline=1,
-                             command=AboutWindow.show)
+                             command=about_window.show)
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", underline=1, command=self.quit)
     def quit(self):
@@ -158,30 +172,41 @@ class MenuBar(Menu):
 #teleop_high_miss, teleop_low, teleop_low_speed, ranged_pass
 #truss_pass, fouls, tech_fouls, defense, truss_catch, range_catch, human_catch
 #match_result, comments
-class Application(Frame):
+class Application(Toplevel):
     """Application window for scouting sheet"""
     def __init__(self, master):
         """initialize the window"""
-        Frame.__init__(self, master)
+        Toplevel.__init__(self, master)
         self.logo = PhotoImage(file = "lib/logo.GIF")
         self.form = Form()
         self.grid()
         self.create_fields()
         self.clear_entries()
         self.filename = os.path.join('data', "scouting_data")
-        # White background
-        self.config(background='white')
-        for w in self.children.values():
-            if not isinstance(w, (Text, Entry)):
-                w.config(background='white', highlightbackground='white')
-            elif isinstance(w, (Text, Entry)):
-                w.config(highlightbackground='white')
+        self.color_background('white')
         self.after_idle(self.check_data_file)
+
+    def color_background(self, color=None):
+        if color == 'random':
+            color = "#" + ''.join([hex(random.randint(0, 15))[2:]
+                                   for i in range(6)])
+        self.config(background=color)
+        for w in self.children.values():
+            if isinstance(w, (Text, Entry)):
+                w.config(highlightbackground=color)
+            elif isinstance(w, (MenuBar)):
+                pass
+            else:
+                try:
+                    w.config(background=color, highlightbackground=color)
+                except tkinter.TclError:
+                    pass
+
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
         Label(self, text = "FRC team 830"
-              ).grid(row=0, column=0, columnspan=2, sticky=W)
+              ).grid(row=0, column=0, sticky=W)
         #match_num input field
         Label(self, text="Match #:").grid(row=1, column=0, sticky=W)
         self.form.match_num = IntegerEntry(self, min=0)
@@ -348,17 +373,9 @@ class Application(Frame):
         """checks if required fields are filled, if so it submits"""
         color = "white"
         rainbow=False
-        easter = self.form.comments.get("0.0", END)
-        egg = ["red","blue","black",
-               "white","yellow","orange",
-               "green","purple"]
-        if "rainbow" in easter:
-            rainbow=True
-            app.configure(background=random.choice(egg))
-        for c in egg:
-            if c in easter:
-                color = c
-                app.configure(background=color)
+        comments = self.form.comments.get("0.0", END).lower()
+        if 'rainbow' in comments:
+            self.color_background('random')
         valid = True
         for field in self.entries:
             # default background color
@@ -496,7 +513,6 @@ class AboutWindow(Toplevel):
         'bugreport': 'https://github.com/cbott/830_scouting_forms/wiki/Reporting-a-bug',
         'newissue': 'https://github.com/cbott/830_scouting_forms/issues/new'
     }
-    current_window = None
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title('About')
@@ -504,10 +520,14 @@ class AboutWindow(Toplevel):
         self.columnconfigure(1, weight=1)
         self.columnconfigure(4, weight=1)
         self.draw()
-        position = tuple(int(x) + 20 for x in master.geometry().split('+', 1)[1].split('+'))
-        self.geometry('+%i+%i' % position)
         self.minsize(200, 0)
         self.bind('<Key>', self.keypress)
+        self.protocol('WM_DELETE_WINDOW', self.withdraw)
+
+    def show(self):
+        # Force to front
+        self.withdraw()
+        self.deiconify()
 
     def draw(self):
         img = Label(self, image=app.logo)
@@ -527,8 +547,7 @@ class AboutWindow(Toplevel):
     def keypress(self, event):
         """ Handle keyboard input """
         if event.keysym == 'Escape':
-            self.destroy()
-            AboutWindow.current_window = None
+            self.withdraw()
 
     def open(self, url):
         if url in self.urls:
@@ -539,12 +558,6 @@ class AboutWindow(Toplevel):
         except ImportError:
             messagebox.showerror('Module not found',
                                  'Could not open a web browser')
-
-    @staticmethod
-    def show():
-        if AboutWindow.current_window:
-            AboutWindow.current_window.destroy()
-        AboutWindow.current_window = AboutWindow(root)
 
 class ExceptionHandler:
     """ Handles uncaught exceptions in Tkinter callbacks """
@@ -620,9 +633,9 @@ if __name__ == '__main__':
     root = Tk()
     root.title("Aerial Assist Match Scouting Form")
     app = Application(root)
-    about_window = AboutWindow.current_window = AboutWindow(root)
+    about_window = AboutWindow(app)
     about_window.withdraw()
-    menu = MenuBar(root)
+    menu = MenuBar(app)
     console = None
     if '--debug' in sys.argv:
         if sys.stdout.isatty() and sys.stdin.isatty():
@@ -637,5 +650,8 @@ if __name__ == '__main__':
                     'Debug mode needs to be run from a terminal')
             )
     root.config(menu=menu)
-    root.resizable(0, 0)
+    root.withdraw()
+    # Destroy root when app is closed
+    app.protocol('WM_DELETE_WINDOW', root.destroy)
+    root.after_idle(system_check)
     root.mainloop()
