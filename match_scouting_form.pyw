@@ -30,7 +30,10 @@ except ImportError:
 from lib.csvexport import CSVExporterBase
 from lib.version import VERSION
 import lib.validation as validation
-import lib.debug as debug
+try:
+    import lib.debug as debug
+except ImportError:
+    pass
 
 # Form fields, in order
 form_fields = [
@@ -166,7 +169,14 @@ class Application(Frame):
         self.create_fields()
         self.clear_entries()
         self.filename = os.path.join('data', "scouting_data")
-        self.after(100, self.check_data_file)
+        # White background
+        self.config(background='white')
+        for w in self.children.values():
+            if not isinstance(w, (Text, Entry)):
+                w.config(background='white', highlightbackground='white')
+            elif isinstance(w, (Text, Entry)):
+                w.config(highlightbackground='white')
+        self.after_idle(self.check_data_file)
     def create_fields(self):
         """create input boxes and fields on the form"""
         #title
@@ -619,6 +629,8 @@ if __name__ == '__main__':
             console = debug.Console(globals())
             console.add_to_menubar(menu)
             debug.register_root(root)
+            if '--open-console' in sys.argv:
+                console.run_console()
         else:
             root.after_idle(lambda:
                 messagebox.showerror('Error',
