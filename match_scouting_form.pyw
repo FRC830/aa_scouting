@@ -637,4 +637,5 @@ if __name__ == '__main__':
                     'Debug mode needs to be run from a terminal')
             )
     root.config(menu=menu)
+    root.resizable(0, 0)
     root.mainloop()
