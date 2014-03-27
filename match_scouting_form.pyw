@@ -194,7 +194,7 @@ class Application(Toplevel):
         for w in self.children.values():
             if isinstance(w, (Text, Entry)):
                 w.config(highlightbackground=color)
-            elif isinstance(w, (MenuBar)):
+            elif isinstance(w, (MenuBar, Toplevel)):
                 pass
             else:
                 try:
@@ -348,8 +348,9 @@ class Application(Toplevel):
         picture.image = self.logo
         picture.grid(row=20, column=0)
         #submit button
-        Button(self, text="Submit Form", command = self.check_submit) \
-            .grid(row=20, column=4, sticky=E)
+        self.submit_button = Button(self, text="Submit Form",
+                                    command = self.submit)
+        self.submit_button.grid(row=20, column=4, sticky=E)
         # Helper function to bind background clearing to field
         # Used for scoping - otherwise, field refers to the last field from loop
         def bind_to_field(field):
@@ -357,7 +358,7 @@ class Application(Toplevel):
             def handler(event):
                 if field.get():
                     field.config(background='white')
-            field.bind('<KeyRelease>', handler)
+            field.bind('<KeyRelease>', handler, '+')
         # Lists of required fields
         self.entries = []
         self.radio_buttons = []
@@ -370,7 +371,7 @@ class Application(Toplevel):
                 # Radio button
                 self.radio_buttons.append(field)
     def check_submit(self):
-        """checks if required fields are filled, if so it submits"""
+        """ Checks to see if all required fields are filled out """
         color = "white"
         rainbow=False
         comments = self.form.comments.get("0.0", END).lower()
@@ -389,13 +390,15 @@ class Application(Toplevel):
         for field in self.radio_buttons:
             if field.get() == 'None':
                 valid = False
-        if valid:
-            self.submit()
-        else:
+        return valid
+    def submit(self, check=True):
+        """ Reads values from scouting form and save to a file """
+        if check and not self.check_submit():
+            self.submit_button.config(state=DISABLED)
             messagebox.showerror("Can't submit form",
                 'You need to fill in all fields before submitting.')
-    def submit(self):
-        """Read values from scouting form and save to a file"""
+            self.submit_button.config(state=NORMAL)
+            return False
         try:
             data = self.form.get_data()
             contents = self.load_data_file()
@@ -406,6 +409,7 @@ class Application(Toplevel):
             self.clear_entries()
         except Exception as e:
             messagebox.showerror('Internal error', e)
+        return True
 
     def clear_entries(self):
         """erase entries and give user a clean slate - Good as new!"""
@@ -637,13 +641,14 @@ if __name__ == '__main__':
     about_window.withdraw()
     menu = MenuBar(app)
     console = None
+    open_console = ('--open-console' in sys.argv)
     if '--debug' in sys.argv:
         if sys.stdout.isatty() and sys.stdin.isatty():
             console = debug.Console(globals())
             console.add_to_menubar(menu)
             debug.register_root(root)
-            if '--open-console' in sys.argv:
-                console.run_console()
+            if open_console:
+                root.after(10, console.run_console)
         else:
             root.after_idle(lambda:
                 messagebox.showerror('Error',
@@ -654,4 +659,7 @@ if __name__ == '__main__':
     # Destroy root when app is closed
     app.protocol('WM_DELETE_WINDOW', root.destroy)
     root.after_idle(system_check)
+    # Focus window on OS X
+    if sys.platform == 'darwin' and not open_console:
+        root.after_idle(os.system, './lib/osx_focus %i' % os.getpid())
     root.mainloop()

@@ -28,6 +28,7 @@ class CSVExporterBase(Toplevel):
         # Set columns 1 and 5 to resize with window
         self.columnconfigure(1, weight=1)
         self.columnconfigure(5, weight=1)
+        self.rowconfigure(2, weight=1)
         self.draw()
         self.bind('<Key>', self.keypress)
         # geometry is width x height + x + y
@@ -38,7 +39,7 @@ class CSVExporterBase(Toplevel):
         """ Draws widgets """
         Label(self, text='Data to export:').grid(row=1, column=2, columnspan=3)
         self.list = listbox = Listbox(self, selectmode=MULTIPLE)
-        listbox.grid(row=2, column=1, columnspan=5, padx=15, sticky=E+W)
+        listbox.grid(row=2, column=1, columnspan=5, padx=15, sticky='nsew')
         self.draw_listbox()
 
         self.save_clear_data = BooleanVar()

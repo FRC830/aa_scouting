@@ -11,6 +11,8 @@ except ImportError:
 
 class Console:
     def __init__(self, globals=None):
+        if globals is None:
+            globals = {}
         self.globals = globals
         self.globals['quit'] = self.globals['exit'] = self.quit
 
