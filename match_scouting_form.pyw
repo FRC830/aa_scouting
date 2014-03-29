@@ -31,10 +31,8 @@ except ImportError:
 from lib.csvexport import CSVExporterBase
 from lib.version import VERSION
 import lib.validation as validation
-try:
-    import lib.debug as debug
-except ImportError:
-    pass
+import lib.debug as debug
+import lib.urls as urls
 
 # Form fields, in order
 form_fields = [
@@ -509,11 +507,7 @@ class CSVExporter(CSVExporterBase):
 
 class AboutWindow(Toplevel):
     # Keep track of window
-    urls = {
-        'wiki': 'https://github.com/cbott/830_scouting_forms/wiki/Team-830%27s-2014-match-scouting-form',
-        'bugreport': 'https://github.com/cbott/830_scouting_forms/wiki/Reporting-a-bug',
-        'newissue': 'https://github.com/cbott/830_scouting_forms/issues/new'
-    }
+    urls = urls.get_urls()
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title('About')
@@ -560,71 +554,6 @@ class AboutWindow(Toplevel):
             messagebox.showerror('Module not found',
                                  'Could not open a web browser')
 
-class ExceptionHandler:
-    """ Handles uncaught exceptions in Tkinter callbacks """
-    def __init__(self, func, subst, widget):
-        self.func, self.subst, self.widget = func, subst, widget
-
-    def __call__(self, *args):
-        try:
-            if self.subst:
-                args = self.subst(*args)
-            return self.func(*args)
-        except Exception:
-            try:
-                ExceptionReporter(root, traceback.format_exc())
-            except Exception:
-                traceback.print_exc()
-
-class ExceptionReporter(Toplevel):
-    def __init__(self, master, tb):
-        Toplevel.__init__(self, master)
-        self.tb = tb.replace(os.getcwd(), '.')
-        self.title('Internal error')
-        self.grid()
-        self.columnconfigure(1, weight=1)
-        self.draw()
-        self.minsize(200, 0)
-        self.after_idle(self.lift)
-
-    def draw(self):
-        Label(self, text='An internal error has occurred.').grid(row=1, column=1, sticky=W)
-        text = self.text = Text(self, width=80, height=20, wrap=WORD)
-        text.grid(row=2, column=1, columnspan=2)
-        text.insert('0.0', self.tb)
-        # Disable widget, but make clicking set focus so copying works
-        text.config(state=DISABLED)
-        text.bind('<1>', lambda event: text.focus_set())
-        # Auto-focus
-        text.focus_set()
-        text.tag_add('sel', '0.0', END)
-        Label(self, text='Copy this text and submit a bug report, if necessary')\
-            .grid(row=3, column=1, columnspan=2, sticky=W)
-        self.copy_button = Button(self, text='Copy to clipboard',
-                                  command=self.copy, width=20)
-        self.copy_button.grid(row=4, column=2, sticky=W)
-        self.copy_button.bind('<Leave>',
-            lambda event: self.copy_button.config(text='Copy to clipboard'))
-        Button(self, text="Don't submit", command=self.destroy) \
-            .grid(row=5, column=1, sticky=W)
-        Button(self, text='Submit report',
-               command=lambda: about_window.open('newissue')) \
-            .grid(row=5, column=2, sticky=E)
-
-    def copy(self):
-        """ Copies text to clipboard """
-        try:
-            self.text.tag_add('sel', '0.0', END)
-            self.text.clipboard_clear()
-            self.text.clipboard_append('```\n')
-            self.text.clipboard_append(self.text.get('sel.first', 'sel.last'))
-            self.text.clipboard_append('\n```')
-            self.copy_button.config(text='Copied!')
-        except Exception:
-            self.copy_button.config(text='Failed')
-
-tkinter.CallWrapper = ExceptionHandler
-
 def exit_form():
     root.destroy()
     sys.exit()
@@ -632,6 +561,7 @@ def exit_form():
 if __name__ == '__main__':
     initialize()
     root = Tk()
+    tkinter.CallWrapper = debug.ExceptionHandler.new_with_root(root)
     root.title("Aerial Assist Match Scouting Form")
     app = Application(root)
     about_window = AboutWindow(app)
@@ -639,24 +569,25 @@ if __name__ == '__main__':
     menu = MenuBar(app)
     console = None
     open_console = ('--open-console' in sys.argv)
+    root.config(menu=menu)
+    root.withdraw()
     if '--debug' in sys.argv:
         if sys.stdout.isatty() and sys.stdin.isatty():
-            console = debug.Console(globals())
+            console = debug.Console(root, globals())
             console.add_to_menubar(menu)
             debug.register_root(root)
             if open_console:
-                root.after(10, console.run_console)
+                root.update()
+                root.after_idle(console.run_console)
         else:
             root.after_idle(lambda:
                 messagebox.showerror('Error',
                     'Debug mode needs to be run from a terminal')
             )
-    root.config(menu=menu)
-    root.withdraw()
     # Destroy root when app is closed
     app.protocol('WM_DELETE_WINDOW', root.destroy)
     root.after_idle(system_check)
     # Focus window on OS X
-    if sys.platform == 'darwin' and not open_console:
+    if sys.platform == 'darwin':
         root.after_idle(os.system, './lib/osx_focus %i' % os.getpid())
     root.mainloop()
