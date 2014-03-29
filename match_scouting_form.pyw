@@ -204,150 +204,147 @@ class Application(Toplevel):
 
     def create_fields(self):
         """create input boxes and fields on the form"""
-        #title
-        Label(self, text = "FRC team 830"
-              ).grid(row=0, column=0, sticky=W)
-        #match_num input field
+        # title
+        Label(self, text="FRC team 830").grid(row=0, column=0, sticky=W)
+
+        # match_num
         Label(self, text="Match #:").grid(row=1, column=0, sticky=W)
         self.form.match_num = IntegerEntry(self, min=0)
-        self.form.match_num.grid(row=1,column=1,sticky=W)
-        #team_num input field
+        self.form.match_num.grid(row=1, column=1, sticky=W)
+
+        # team_num
         Label(self, text="Team #:").grid(row=1, column=2)
         self.form.team_num = IntegerEntry(self, min=0)
-        self.form.team_num.grid(row=1,column=3,sticky=W, columnspan=1)
-        #auton_ball_num input field
-        Label(self, text="Auton balls posessed:").grid(row=2, column=0, sticky=W)
+        self.form.team_num.grid(row=1, column=3, sticky=W, columnspan=1)
+
+        # auton_ball_num
+        Label(self, text="Auton balls posessed:") \
+            .grid(row=2, column=0, sticky=W)
         self.form.auton_ball_num = IntegerEntry(self, min=0)
-        self.form.auton_ball_num.grid(row=2,column=1,sticky=W)
-        #auton_high
+        self.form.auton_ball_num.grid(row=2, column=1, sticky=W)
+
+        # auton_high
         Label(self, text="Auton High Goal").grid(row=2, column=2)
-        scoring_options=["N/A","Missed","Scored"]
-        self.form.auton_high=StringVar()
+        scoring_options = ["N/A", "Missed", "Scored"]
+        self.form.auton_high = StringVar()
         self.form.auton_high.set(None)
-        col=3
-        for val in scoring_options:
-            Radiobutton(self, text = val, variable = self.form.auton_high, value=val
-                        ).grid(row = 2, column=col, sticky=E)
-            col+=1
-        #auton_low
+        for col, val in enumerate(scoring_options):
+            Radiobutton(self, text=val, variable=self.form.auton_high,
+                        value=val).grid(row=2, column=col + 3, sticky=E)
+
+        # auton_low
         Label(self, text="Auton Low Goal").grid(row=3, column=2)
-        scoring_options=["N/A","Missed","Scored"]
-        self.form.auton_low=StringVar()
+        self.form.auton_low = StringVar()
         self.form.auton_low.set(None)
-        col=3
-        for val in scoring_options:
-            Radiobutton(self, text = val, variable = self.form.auton_low, value=val
-                        ).grid(row = 3, column=col, sticky=E)
-            col+=1
-        #teleop_high
+        for col, val in enumerate(scoring_options):
+            Radiobutton(self, text=val, variable=self.form.auton_low,
+                        value=val).grid(row=3, column=col + 3, sticky=E)
+
+        # teleop_high
         Label(self, text="Teleop High Goals:").grid(row=4, column=0, sticky=W)
         self.form.teleop_high = IntegerEntry(self, min=0)
         self.form.teleop_high.grid(row=4,column=1,sticky=W)
-        #teleop_high_miss
+
+        # teleop_high_miss
         Label(self, text="High Goals Missed:").grid(row=4, column=2, sticky=W)
         self.form.teleop_high_miss = IntegerEntry(self, min=0)
-        self.form.teleop_high_miss.grid(row=4,column=3,sticky=W, columnspan=1)
-        #teleop_low
+        self.form.teleop_high_miss.grid(row=4, column=3, sticky=W, columnspan=1)
+
+        # teleop_low
         Label(self, text="Teleop Low Goals:").grid(row=5, column=0, sticky=W)
         self.form.teleop_low = IntegerEntry(self, min=0)
-        self.form.teleop_low.grid(row=5,column=1,sticky=W)
-        #teleop_low_speed
+        self.form.teleop_low.grid(row=5, column=1, sticky=W)
+
+        # teleop_low_speed
         Label(self, text="Teleop Low Goal Speed:").grid(row=6 , column=0,
-                                                       columnspan=2, sticky=W)
-        speed_options=["N/A", "Slow", "Medium", "Fast"]
+                                                columnspan=2, sticky=W)
+        speed_options = ["N/A", "Slow", "Medium", "Fast"]
         self.form.teleop_low_speed = StringVar()
         self.form.teleop_low_speed.set(None)
-        col = 1
-        for val in speed_options:
-            Radiobutton(self, text=val, variable=self.form.teleop_low_speed, value=val
-                        ).grid(row=6, column=col)
-            col+=1
+        for col, val in enumerate(speed_options):
+            Radiobutton(self, text=val, variable=self.form.teleop_low_speed,
+                        value=val).grid(row=6, column=col + 1)
 
-        #pass consistency
-        Label(self, text = " ").grid(row=7, column=0, sticky=W)
-        Label(self, text = "Pass Consistency").grid(row=8, column=0, sticky=W)
-        Label(self, text = "N/A").grid(row=8, column=1, sticky=S)
-        Label(self, text = "Inconsistent").grid(row=8, column=2, sticky=S)
-        Label(self, text = "Consistent").grid(row=8, column=3, sticky=S)
-        Label(self, text = "Over Truss").grid(row=9, column=0, sticky=W)
-        Label(self, text = "Ranged Pass").grid(row=10, column=0, sticky=W)
-        Label(self, text = "").grid(row=11, column=0)
+        # pass consistency
+        Label(self, text=" ").grid(row=7, column=0, sticky=W)
+        Label(self, text="Pass Consistency").grid(row=8, column=0, sticky=W)
+        Label(self, text="N/A").grid(row=8, column=1, sticky=S)
+        Label(self, text="Inconsistent").grid(row=8, column=2, sticky=S)
+        Label(self, text="Consistent").grid(row=8, column=3, sticky=S)
+        Label(self, text="Over Truss").grid(row=9, column=0, sticky=W)
+        Label(self, text="Ranged Pass").grid(row=10, column=0, sticky=W)
+        Label(self, text="").grid(row=11, column=0)
+
+        # truss_pass
         pass_options = ["N/A", "Inconsistent", "Consistent"]
-        #ranged_pass
-        self.form.ranged_pass = StringVar()
-        self.form.ranged_pass.set(None)
-        col = 1
-        for val in pass_options:
-            Radiobutton(self, variable = self.form.ranged_pass, value = val
-                        ).grid(row=10, column=col)
-            col+=1
-        #truss_pass
+
         self.form.truss_pass = StringVar()
         self.form.truss_pass.set(None)
-        col = 1
-        for val in pass_options:
-            Radiobutton(self, variable = self.form.truss_pass, value = val
-                        ).grid(row=9, column=col)
-            col+=1
-        #ranged_pass
-        self.ranged_pass = StringVar()
-        self.ranged_pass.set(None)
-        col = 1
-        for val in pass_options:
-            Radiobutton(self, variable = self.ranged_pass, value = val
-                        ).grid(row=10, column=col)
-            col+=1
-        #fouls
+        for col, val in enumerate(pass_options):
+            Radiobutton(self, variable=self.form.truss_pass,
+                        value=val).grid(row=9, column=col + 1)
+
+        # ranged_pass
+        self.form.ranged_pass = StringVar()
+        self.form.ranged_pass.set(None)
+        for col, val in enumerate(pass_options):
+            Radiobutton(self, variable=self.form.ranged_pass,
+                        value=val).grid(row=10, column=col + 1)
+
+        # fouls
         Label(self, text="Fouls:").grid(row=12, column=0, sticky=E)
-        self.form.fouls=IntegerEntry(self, min=0)
+        self.form.fouls = IntegerEntry(self, min=0)
         self.form.fouls.grid(row=12, column=1, sticky=W)
-        #tech_fouls
+
+        # tech_fouls
         Label(self, text="Technical Fouls:").grid(row=12, column=2, sticky=E)
-        self.form.tech_fouls=IntegerEntry(self, min=0)
+        self.form.tech_fouls = IntegerEntry(self, min=0)
         self.form.tech_fouls.grid(row=12, column=3, sticky=W)
-        Label(self, text = "").grid(row=13, column=0)
-        #defense
-        Label(self, text="Defense:").grid(row=14, column=0, sticky=E)
-        col=1
+        Label(self, text="").grid(row=13, column=0)
+
+        # defense
         defense_options = ["N/A", "Bad", "Mediocre", "Good"]
+        Label(self, text="Defense:").grid(row=14, column=0, sticky=E)
         self.form.defense = StringVar()
         self.form.defense.set(None)
-        for val in defense_options:
-            Radiobutton(self, variable=self.form.defense, value=val, text=val
-                        ).grid(row=14, column=col)
-            col+=1
-        #catching: truss_catch, range_catch, human_catch
+        for col, val in enumerate(defense_options):
+            Radiobutton(self, variable=self.form.defense, value=val, text=val)\
+                        .grid(row=14, column=col + 1)
+
+        # catching: truss_catch, range_catch, human_catch
         Label(self, text="Catching:").grid(row=15, column=0, sticky=E)
         self.form.truss_catch = BooleanVar()
         self.form.range_catch = BooleanVar()
         self.form.human_catch = BooleanVar()
-        Checkbutton(self, text="Truss", variable=self.form.truss_catch).grid(
-            row=15, column=1, sticky=W)
-        Checkbutton(self, text="Ranged", variable=self.form.range_catch).grid(
-            row=16, column=1, sticky=W)
-        Checkbutton(self, text="From Human", variable=self.form.human_catch).grid(
-            row=17, column=1, sticky=W)
-        #match_result
-        Label(self, text="Match Result:").grid(row = 15, column=2, sticky=E)
+        Checkbutton(self, text="Truss", variable=self.form.truss_catch) \
+            .grid(row=15, column=1, sticky=W)
+        Checkbutton(self, text="Ranged", variable=self.form.range_catch) \
+            .grid(row=16, column=1, sticky=W)
+        Checkbutton(self, text="From Human", variable=self.form.human_catch) \
+            .grid(row=17, column=1, sticky=W)
+
+        # match_result
         result_options = ["Win", "Loss", "Tie"]
+        Label(self, text="Match Result:").grid(row=15, column=2, sticky=E)
         self.form.match_result = StringVar()
         self.form.match_result.set(None)
-        row=15
-        for val in result_options:
-            Radiobutton(self, variable=self.form.match_result, value=val, text=val
-                        ).grid(row=row, column=3, sticky=W)
-            row+=1
+        for row, val in enumerate(result_options):
+            Radiobutton(self, variable=self.form.match_result, value=val,
+                    text=val).grid(row=row + 15, column=3, sticky=W)
         Label(self, text="").grid(row=18, column=0)
-        #comments
+
+        # comments
         Label(self, text="Comments:").grid(row=19, column=0)
-        self.form.comments = Text(self, width = 40, height=5, wrap=WORD,
-                             background='#ffff00')
+        self.form.comments = Text(self, width=40, height=5, wrap=WORD,
+                             background='#ccccff')
         self.form.comments.grid(row=19, column=1, columnspan=3, rowspan=2)
-        #picture
+
+        # picture
         picture = Label(self, image=self.logo)
         picture.image = self.logo
         picture.grid(row=20, column=0)
-        #submit button
+
+        # submit button
         self.submit_button = Button(self, text="Submit Form",
                                     command = self.submit)
         self.submit_button.grid(row=20, column=4, sticky=E)
