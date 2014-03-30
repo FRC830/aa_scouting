@@ -368,7 +368,6 @@ class Application(Toplevel):
     def check_submit(self):
         """ Checks to see if all required fields are filled out """
         color = "white"
-        rainbow=False
         comments = self.form.comments.get("0.0", END).lower()
         if 'rainbow' in comments:
             self.color_background('random')
@@ -376,8 +375,6 @@ class Application(Toplevel):
         for field in self.entries:
             # default background color
             field.config(background=color)
-            if rainbow:
-                field.config(background=random.choice(egg))
             if not field.get():
                 #a field has not been completed
                 field.config(background='#ffaaaa')
