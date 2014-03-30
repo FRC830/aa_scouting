@@ -569,18 +569,12 @@ if __name__ == '__main__':
     root.config(menu=menu)
     root.withdraw()
     if '--debug' in sys.argv:
-        if sys.stdout.isatty() and sys.stdin.isatty():
-            console = debug.Console(root, globals())
-            console.add_to_menubar(menu)
-            debug.register_root(root)
-            if open_console:
-                root.update()
-                root.after_idle(console.run_console)
-        else:
-            root.after_idle(lambda:
-                messagebox.showerror('Error',
-                    'Debug mode needs to be run from a terminal')
-            )
+        console = debug.Console(root, globals())
+        console.add_to_menubar(menu)
+        debug.register_root(root)
+        if open_console:
+            root.update()
+            root.after_idle(console.run_console)
     # Destroy root when app is closed
     app.protocol('WM_DELETE_WINDOW', root.destroy)
     root.after_idle(system_check)
