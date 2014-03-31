@@ -150,16 +150,24 @@ class Form(object):
 class MenuBar(Menu):
     def __init__(self, parent):
         Menu.__init__(self, parent)
-        parent['menu'] = self
-        fileMenu = Menu(self, tearoff=False)
-        self.add_cascade(label="File", underline=0, menu=fileMenu)
-        fileMenu.add_command(label='CSV export', underline=1,
+        osx = (sys.platform == 'darwin')
+        if osx:
+            self.app_menu = Menu(self, name='apple')
+            self.app_menu.add_command(label="About", command=about_window.show)
+            self.add_cascade(menu=self.app_menu, label='')
+            self.file_menu = Menu(self, tearoff=False)
+        else:
+            self.app_menu = self.file_menu = Menu(self, tearoff=False)
+        self.file_menu.add_command(label='CSV export', underline=1,
             command=lambda: CSVExporter(root))
-        fileMenu.add_separator()
-        fileMenu.add_command(label="About", underline=1,
-                             command=about_window.show)
-        fileMenu.add_separator()
-        fileMenu.add_command(label="Exit", underline=1, command=self.quit)
+        if not osx:
+            self.file_menu.add_separator()
+            self.file_menu.add_command(label="About", command=about_window.show)
+            self.file_menu.add_separator()
+            self.file_menu.add_command(label="Exit", underline=1, command=self.quit)
+        self.add_cascade(label="File", underline=0, menu=self.file_menu)
+        parent['menu'] = self
+
     def quit(self):
         confirm = messagebox.askokcancel('', 'Are you sure you want to exit?')
         if confirm:
