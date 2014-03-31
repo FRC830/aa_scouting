@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-import code, os, sys, traceback
+import code, os, sys, traceback, inspect, datetime
 PYTHON = int(sys.version.split('.')[0])
 
 try:
@@ -173,8 +173,15 @@ class ExceptionHandler:
                 args = self.subst(*args)
             return self.func(*args)
         except Exception:
+            info = ''
             try:
-                ExceptionReporter(self.root, traceback.format_exc())
+                tb = traceback.format_exc()
+                info += tb + '\n------\n'
+                info += str(inspect.getargvalues(sys.exc_info()[2].tb_frame))
+            except Exception as e:
+                info += '\nERROR: %s' % e
+            try:
+                ExceptionReporter(self.root, tb, info)
             except Exception:
                 print('Unable to display exception reporter')
                 traceback.print_exc()
@@ -186,12 +193,14 @@ class ExceptionHandler:
         return wrapper
 
 class ExceptionReporter(Toplevel):
-    def __init__(self, master, tb):
+    def __init__(self, master, tb, dump):
         Toplevel.__init__(self, master)
         self.tb = tb.replace(os.getcwd(), '.')
         self.title('Internal error')
         self.grid()
         self.columnconfigure(1, weight=1)
+        path = self.save_dump(dump)
+        self.tb += '\nSaved to: %s' % path
         self.draw()
         self.minsize(200, 0)
         self.after_idle(self.lift)
@@ -219,6 +228,16 @@ class ExceptionReporter(Toplevel):
         Button(self, text='Submit report',
                command=lambda: urls.open('newissue')) \
             .grid(row=5, column=2, sticky=E)
+
+    def save_dump(self, dump):
+        filename = 'data/dump_%s.txt' % \
+                   datetime.datetime.today().strftime('%d_%m_%Y_%H_%M_%S')
+        with open(filename, 'ab') as f:
+            try:
+                f.write(dump)
+            except Exception as e:
+                print('Could not write to file: %s' % e)
+        return filename
 
     def copy(self):
         """ Copies text to clipboard """
