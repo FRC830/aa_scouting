@@ -175,13 +175,32 @@ class ExceptionHandler:
         except Exception:
             info = ''
             try:
-                tb = traceback.format_exc()
-                info += tb + '\n------\n'
-                info += str(inspect.getargvalues(sys.exc_info()[2].tb_frame))
+                raw_tb = traceback.format_exc()
+                info += raw_tb + '\n------\n'
+                tb = sys.exc_info()[2]
+                while 1:
+                    if not tb.tb_next:
+                        break
+                    tb = tb.tb_next
+                stack = []
+                frame = tb.tb_frame
+                while frame:
+                    stack.append(frame)
+                    frame = frame.f_back
+                stack.reverse()
+                for frame in stack:
+                    info += "* Frame %s in %s at line %s" % (frame.f_code.co_name,
+                                             frame.f_code.co_filename,
+                                             frame.f_lineno)
+                    for key, value in frame.f_locals.items():
+                        try:
+                            info += "\t{0: <20}={1!r}\n".format(key, value)
+                        except Exception:
+                            info += 'Failed to retrieve value\n'
             except Exception as e:
                 info += '\nERROR: %s' % e
             try:
-                ExceptionReporter(self.root, tb, info)
+                ExceptionReporter(self.root, raw_tb, info)
             except Exception:
                 print('Unable to display exception reporter')
                 traceback.print_exc()
