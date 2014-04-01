@@ -189,7 +189,7 @@ class ExceptionHandler:
                     frame = frame.f_back
                 stack.reverse()
                 for frame in stack:
-                    info += "* Frame %s in %s at line %s" % (frame.f_code.co_name,
+                    info += "* Frame %s in %s at line %s\n" % (frame.f_code.co_name,
                                              frame.f_code.co_filename,
                                              frame.f_lineno)
                     for key, value in frame.f_locals.items():
@@ -197,13 +197,17 @@ class ExceptionHandler:
                             info += "\t{0: <20}={1!r}\n".format(key, value)
                         except Exception:
                             info += 'Failed to retrieve value\n'
+                        raw_tb = raw_tb.replace(os.getcwd(), '.')
+                        info = info.replace(os.getcwd(), '.')
             except Exception as e:
-                info += '\nERROR: %s' % e
+                info += '\nERROR: %s\n' % e
             try:
                 ExceptionReporter(self.root, raw_tb, info)
             except Exception:
-                print('Unable to display exception reporter')
+                print('Debugging info')
                 traceback.print_exc()
+                print(info)
+                print('Unable to display exception reporter')
 
     @staticmethod
     def new_with_root(root):
@@ -214,7 +218,6 @@ class ExceptionHandler:
 class ExceptionReporter(Toplevel):
     def __init__(self, master, tb, dump):
         Toplevel.__init__(self, master)
-        self.tb = tb.replace(os.getcwd(), '.')
         self.title('Internal error')
         self.grid()
         self.columnconfigure(1, weight=1)
