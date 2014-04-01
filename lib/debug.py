@@ -203,11 +203,11 @@ class ExceptionHandler:
                 info += '\nERROR: %s\n' % e
             try:
                 ExceptionReporter(self.root, raw_tb, info)
-            except Exception:
+            except Exception as e:
                 print('Debugging info')
                 traceback.print_exc()
                 print(info)
-                print('Unable to display exception reporter')
+                print('Unable to display exception reporter: %s' % e)
 
     @staticmethod
     def new_with_root(root):
@@ -218,6 +218,7 @@ class ExceptionHandler:
 class ExceptionReporter(Toplevel):
     def __init__(self, master, tb, dump):
         Toplevel.__init__(self, master)
+        self.tb, self.dump = tb, dump
         self.title('Internal error')
         self.grid()
         self.columnconfigure(1, weight=1)
