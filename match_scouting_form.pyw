@@ -184,6 +184,7 @@ class Application(Toplevel):
         """initialize the window"""
         Toplevel.__init__(self, master)
         self.logo = PhotoImage(file = "lib/logo.GIF")
+        self.rainbow()
         self.form = Form()
         self.grid()
         self.create_fields()
@@ -208,6 +209,12 @@ class Application(Toplevel):
                 except tkinter.TclError:
                     pass
 
+    def rainbow(self):
+        if self.rainbow_enabled:
+            self.color_background('random')
+        self.after(333, self.rainbow)
+
+    rainbow_enabled = False
     def create_fields(self):
         """create input boxes and fields on the form"""
         # title
@@ -354,6 +361,11 @@ class Application(Toplevel):
         self.submit_button = Button(self, text="Submit Form",
                                     command = self.submit)
         self.submit_button.grid(row=20, column=4, sticky=E)
+        def rb_stop():
+            self.stop_button.grid_forget()
+            self.rainbow_enabled = False
+
+        self.stop_button = Button(self, text="Stop!", command=rb_stop)
         # Helper function to bind background clearing to field
         # Used for scoping - otherwise, field refers to the last field from loop
         def bind_to_field(field):
@@ -378,7 +390,8 @@ class Application(Toplevel):
         color = "white"
         comments = self.form.comments.get("0.0", END).lower()
         if 'rainbow' in comments:
-            self.color_background('random')
+            self.rainbow_enabled = True
+            self.stop_button.grid(row=21, column=4, sticky=E)
         valid = True
         for field in self.entries:
             # default background color
@@ -393,11 +406,14 @@ class Application(Toplevel):
         return valid
     def submit(self, check=True):
         """ Reads values from scouting form and save to a file """
-        if check and not self.check_submit():
+        def err():
             self.submit_button.config(state=DISABLED)
             messagebox.showerror("Can't submit form",
                 'You need to fill in all fields before submitting.')
             self.submit_button.config(state=NORMAL)
+        if check and not self.check_submit():
+            self.update()
+            self.after_idle(err)
             return False
         try:
             data = self.form.get_data()
