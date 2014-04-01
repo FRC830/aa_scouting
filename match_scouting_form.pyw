@@ -169,7 +169,7 @@ class MenuBar(Menu):
         parent['menu'] = self
 
     def quit(self):
-        confirm = messagebox.askokcancel('', 'Are you sure you want to exit?')
+        confirm = messagebox.askokcancel('Can I Ask You Something?', 'Are you sure you want to exit?')
         if confirm:
             exit_form()
 
@@ -211,7 +211,7 @@ class Application(Toplevel):
     def create_fields(self):
         """create input boxes and fields on the form"""
         # title
-        Label(self, text="FRC team 830").grid(row=0, column=0, sticky=W)
+        Label(self, text="FRC team 830 - The RatPack").grid(row=0, column=0, columnspan=2, sticky=W)
 
         # match_num
         Label(self, text="Match #:").grid(row=1, column=0, sticky=W)
