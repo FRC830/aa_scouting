@@ -18,9 +18,13 @@ except ImportError:
 
 import lib.urls as urls
 
-def restart():
-    """ Restarts the whole program """
-    if messagebox.askyesno('Restart', 'Are you sure you want to restart? '
+def restart(y=False):
+    """
+    Restarts the program
+
+    Asks for confirmation if y is false
+    """
+    if y or messagebox.askyesno('Restart', 'Are you sure you want to restart? '
                         'No data will be saved.'):
         os.execl(sys.executable, sys.executable, *sys.argv)
 
@@ -278,4 +282,5 @@ def register_root(root):
     def destroy_handler():
         print('Application quit.')
         root.destroy()
+    root.bind_all('<Control-Shift-R>', lambda e: restart(True))
     root.protocol('WM_DELETE_WINDOW', destroy_handler)
