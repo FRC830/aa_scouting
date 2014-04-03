@@ -108,6 +108,7 @@ class IntegerEntry(Entry):
         val = max(self.min, min(self.max, val))
         self.delete('0', END)
         self.insert('0', str(val))
+        self.selection_range(0, END)
 
 class Form(object):
     """ Form data handler """
