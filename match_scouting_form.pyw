@@ -48,7 +48,7 @@ def initialize():
     Updates old installations
     """
     # Change to application folder
-    os.chdir(os.path.dirname(__file__))
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     # Create data folder
     if not os.path.isdir('data'):
         if os.path.exists('data'):
